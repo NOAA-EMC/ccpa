@@ -1,0 +1,558 @@
+###### 02/24/2010 #######################################################
+# This script statistically adjusts STAGE IV precipitation analysis (6-hourly)
+# to generate Climatologically Calibrated Precipitation Analysis (CCPA)
+###### 04/18/2011 #######################################################
+# This script extends CCPA to include 3-hourly precipitation analysis 
+#########################################################################
+
+############################################################
+#HISTORY:
+#2008:       Adhoc scripts available through the work of Mike Charles 
+#01/04/2010: Initial script assembled by Dingchen Hou
+#03/24/2010: Script finalized by Dingchen Hou for CCPA initial implementation
+#04/25/2011: Script finalized by Yan Luo for 1st CCPA upgrade
+############################################################
+
+#!/usr/bin/sh
+
+set +x
+echo " "
+echo " ENTERING SUB SCRIPT $0 "
+echo " "
+set -x
+
+#################################
+# set input parameters
+# curdate and datnext : date of precip analysis, the precip accumulation 
+#           periods covers 12Z today (curdate) and 12Z next day (datnext) 
+# cyc    : initial cycle = 12Z
+# interp: -i parameter for copygb (method of interpolation)
+# grid: grid definition of input data, defined in ../ush/copygb_pcp.sh
+# COMIN ---- (Partial) name of directory of INPUT, source of STAGE IV raw data
+# COMOUT ---- (Partial) name of directory of OUTPUT files
+####################################
+
+pgm=ccpa_conus
+pgmout=output
+
+cd $work_dir
+$utilscript/setup.sh
+
+curdate=$1
+datnext=$2
+
+set +x
+#----------------------------------------------------------
+# Print info
+#
+echo Welcome to the CCPA script
+echo ------------------------------------
+echo ----- Current Settings -----
+echo
+echo   Directories:
+echo HOMEccpa   = $HOMEccpa
+echo EXECccpa   = $EXECccpa
+echo USHccpa = $USHccpa
+echo coeff_dir  = $coeff_dir
+echo mask_fil  = $mask_fil
+echo
+echo utilscript = $utilscript
+echo EXECUTIL = $EXECUTIL
+echo
+echo work_dir   = $work_dir
+echo rfc_dir    = $rfc_dir
+echo out_dir    = $out_dir
+echo 
+echo   Executables:
+echo 
+#echo grads  = $grads_exe
+#echo copygb_exe = $copygb_exe
+#echo wgrib  = $wgrib_exe
+echo 
+echo   Constants:
+echo 
+echo interp = $interp
+echo grid   = $grid
+echo 
+#echo ZDIR = $ZDIR
+echo ODIR = $ODIR
+echo
+echo  ---- Program Execution -----
+
+set -x
+
+MMDD=` echo $datnext | cut -c5-8`
+coeff_a=$coeff_dir/reg_A_2000$MMDD.bin
+coeff_b=$coeff_dir/reg_B_2000$MMDD.bin
+echo coeffa = $coeff_a
+echo coeffb = $coeff_b
+
+#----------------------------------------------------------
+# create zfil_dir data directory 
+# and copy the .Z file from source directory if needed 
+#----------------------------------------------------------
+ #zfil_dir=$ZDIR/$curdate
+ zfil_dir=$GESDIR.${curdate}/ccpa_st4
+ if [ -s $zfil_dir ]; then
+  echo $zfil_dir already exists!
+ else
+  mkdir -p $zfil_dir
+  echo $zfil_dir is created !
+ fi
+
+if [ $COPYSRC == YES ]; then
+# COPY the STAGE IV source file and do (re-do) the analysis  anyway
+  cp -pr $COMIN.$curdate/ST4.${curdate}18.06h.Z $zfil_dir
+  cp -pr $COMIN.$datnext/ST4.${datnext}00.06h.Z $zfil_dir
+  cp -pr $COMIN.$datnext/ST4.${datnext}06.06h.Z $zfil_dir
+  cp -pr $COMIN.$datnext/ST4.${datnext}12.06h.Z $zfil_dir
+  for h1 in 13 14 15 16 17 18 19 20 21 22 23
+  do
+  cp -pr $COMIN.$curdate/ST4.${curdate}${h1}.01h.Z $zfil_dir
+  cp -pr $COMIN.$curdate/ST2ml${curdate}${h1}.Grb.Z $zfil_dir 
+  done
+  for h1 in 00 01 02 03 04 05 06 07 08 09 10 11 12
+  do
+  cp -pr $COMIN.$datnext/ST4.${datnext}${h1}.01h.Z $zfil_dir
+  cp -pr $COMIN.$datnext/ST2ml${datnext}${h1}.Grb.Z $zfil_dir 
+  done
+  ESCAPE=NO
+  ESCAPE_03h_18=NO
+  ESCAPE_03h_00=NO
+  ESCAPE_03h_06=NO
+  ESCAPE_03h_12=NO
+
+else
+# COPY the STAGE IV source file only when it was recently updated
+# IF No file was recently updated, the analysis will aborted (ESCAPE=YES)
+  ESCAPE=YES
+  cmp $zfil_dir/ST4.${curdate}18.06h.Z $COMIN.$curdate/ST4.${curdate}18.06h.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$curdate/ST4.${curdate}18.06h.Z $zfil_dir
+    ESCAPE=NO
+  fi
+
+  cmp $zfil_dir/ST4.${datnext}00.06h.Z $COMIN.$datnext/ST4.${datnext}00.06h.Z
+  scm=$?
+  if [ $scm -gt 0 ]; then
+    cp -pr $COMIN.$datnext/ST4.${datnext}00.06h.Z $zfil_dir
+    ESCAPE=NO
+  fi
+
+  cmp $zfil_dir/ST4.${datnext}06.06h.Z $COMIN.$datnext/ST4.${datnext}06.06h.Z
+  scm=$?
+  if [ $scm -gt 0 ]; then
+    cp -pr $COMIN.$datnext/ST4.${datnext}06.06h.Z $zfil_dir
+    ESCAPE=NO
+  fi
+
+  cmp $zfil_dir/ST4.${datnext}12.06h.Z $COMIN.$datnext/ST4.${datnext}12.06h.Z
+  scm=$?
+  if [ $scm -gt 0 ]; then
+    cp -pr $COMIN.$datnext/ST4.${datnext}12.06h.Z $zfil_dir
+    ESCAPE=NO
+  fi
+
+  ESCAPE_03h_18=YES
+  for h1 in 13 14 15 16 17 18
+  do
+  cmp $zfil_dir/ST4.${curdate}${h1}.01h.Z $COMIN.$curdate/ST4.${curdate}${h1}.01h.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$curdate/ST4.${curdate}${h1}.01h.Z $zfil_dir
+    ESCAPE_03h_18=NO
+  fi
+  cmp $zfil_dir/ST2ml${curdate}${h1}.Grb.Z $COMIN.$curdate/ST2ml${curdate}${h1}.Grb.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$curdate/ST2ml${curdate}${h1}.Grb.Z $zfil_dir
+    ESCAPE_03h_18=NO
+  fi
+  done
+
+  ESCAPE_03h_00=YES
+  for h1 in 19 20 21 22 23
+  do
+  cmp $zfil_dir/ST4.${curdate}${h1}.01h.Z $COMIN.$curdate/ST4.${curdate}${h1}.01h.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$curdate/ST4.${curdate}${h1}.01h.Z $zfil_dir
+    ESCAPE_03h_00=NO
+  fi
+  cmp $zfil_dir/ST2ml${curdate}${h1}.Grb.Z $COMIN.$curdate/ST2ml${curdate}${h1}.Grb.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$curdate/ST2ml${curdate}${h1}.Grb.Z $zfil_dir
+    ESCAPE_03h_00=NO
+  fi
+  done
+  cmp $zfil_dir/ST4.${datnext}00.01h.Z $COMIN.$datnext/ST4.${datnext}00.01h.Z
+  scm=$?
+  if [ $scm -gt 0 ]; then
+    cp -pr $COMIN.$datnext/ST4.${datnext}00.01h.Z $zfil_dir
+    ESCAPE_03h_00=NO
+  fi
+  cmp $zfil_dir/ST2ml${datnext}00.Grb.Z $COMIN.$datnext/ST2ml${datnext}00.Grb.Z
+  scm=$?
+  if [ $scm -gt 0 ]; then
+    cp -pr $COMIN.$datnext/ST2ml${datnext}00.Grb.Z $zfil_dir
+    ESCAPE_03h_00=NO
+  fi
+
+  ESCAPE_03h_06=YES
+  for h1 in 01 02 03 04 05 06 
+  do
+  cmp $zfil_dir/ST4.${datnext}${h1}.01h.Z $COMIN.$datnext/ST4.${datnext}${h1}.01h.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$datnext/ST4.${datnext}${h1}.01h.Z $zfil_dir
+    ESCAPE_03h_06=NO
+  fi
+  cmp $zfil_dir/ST2ml${datnext}${h1}.Grb.Z $COMIN.$datnext/ST2ml${datnext}${h1}.Grb.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$datnext/ST2ml${datnext}${h1}.Grb.Z $zfil_dir
+    ESCAPE_03h_06=NO
+  fi
+  done
+
+   ESCAPE_03h_12=YES
+  for h1 in 07 08 09 10 11 12 
+  do
+  cmp $zfil_dir/ST4.${datnext}${h1}.01h.Z $COMIN.$datnext/ST4.${datnext}${h1}.01h.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$datnext/ST4.${datnext}${h1}.01h.Z $zfil_dir
+    ESCAPE_03h_12=NO
+  fi
+  cmp $zfil_dir/ST2ml${datnext}${h1}.Grb.Z $COMIN.$datnext/ST2ml${datnext}${h1}.Grb.Z
+  scm=$?
+  if (( $scm > 0 )); then 
+    cp -pr $COMIN.$datnext/ST2ml${datnext}${h1}.Grb.Z $zfil_dir
+    ESCAPE_03h_12=NO
+  fi
+  done 
+
+fi         # for "if [ $COPYSRC == YES ]"
+
+  if [ $ESCAPE == NO ]; then
+#----------------------------------------------------------
+# copy rfc data from zfil_dir directory  to the work dictory
+#----------------------------------------------------------
+
+for fname in $zfil_dir/ST4.${curdate}18.06h.Z \
+             $zfil_dir/ST4.${datnext}00.06h.Z \
+             $zfil_dir/ST4.${datnext}06.06h.Z \
+             $zfil_dir/ST4.${datnext}12.06h.Z 
+do
+
+if [ -s $fname ]; then
+ cp -p $fname $rfc_dir
+else
+ echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ echo $fname  ---- ST4 data file does not exists!
+ echo please check the  directory $COMIN.$curdate!
+ err=911;export err=911;err_chk
+fi
+
+done
+
+#----------------------------------------------------------
+#  enter rfc data directory and unzip the data files 
+#----------------------------------------------------------
+
+cd $rfc_dir
+$utilscript/setup.sh
+for fname in ST4.${curdate}18.06h.Z \
+             ST4.${datnext}00.06h.Z \
+             ST4.${datnext}06.06h.Z \
+             ST4.${datnext}12.06h.Z 
+do
+
+if [ -s $fname ]; then
+ gunzip $fname 
+ echo $fname  is unzipped  !
+else
+ echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ echo $fname  ---- ST4.Z data file does not exists!
+ echo  please check the  directory $COMIN.$curdate!
+ err=911;export err=911;err_chk
+fi
+
+done
+
+#----------------------------------------------------------
+#check data file availability, copy them to work directory $work_dir/rfc_ST4
+#  Also copy them back to the zfil_dir directory for  later reference and plotting
+#----------------------------------------------------------
+if eval test -f ST4.${curdate}18.06h \
+          -a -f ST4.${datnext}00.06h \
+          -a -f ST4.${datnext}06.06h \
+          -a -f ST4.${datnext}12.06h 
+then
+ cp -p ST4.${curdate}18.06h $work_dir/rfc_ST4/rfc_orig_06.grb
+ cp -p ST4.${datnext}00.06h $work_dir/rfc_ST4/rfc_orig_12.grb
+ cp -P ST4.${datnext}06.06h $work_dir/rfc_ST4/rfc_orig_18.grb
+ cp -p ST4.${datnext}12.06h $work_dir/rfc_ST4/rfc_orig_24.grb
+ mv ST4.${curdate}18.06h $zfil_dir
+ mv ST4.${datnext}00.06h $zfil_dir
+ mv ST4.${datnext}06.06h $zfil_dir
+ mv ST4.${datnext}12.06h $zfil_dir
+else
+ echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ echo  At least one ST4 data file does not exists!
+ echo  please check the  directory $rfc_dir/$curdate!
+ err=911;export err=911;err_chk
+fi 
+
+cd $work_dir
+
+#----------------------------------------------------------
+#check coefficient/mask file availability, copy them to work directory 
+#----------------------------------------------------------
+if eval test -f $coeff_a -f $coeff_b  -f $mask_fil
+then
+ echo Copying coefficient a and b files for $curdate, to work directory 
+ cp -f $coeff_a $work_dir/a.bin
+ cp -f $coeff_b $work_dir/b.bin
+ cp -f $mask_fil $work_dir/mask_0125deg.bin
+else
+ echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ echo COEFFICIENT a and b FILES FOR $curdate, or THE MASK FILE, IS NOT AVAILABLE! 
+ err=911;export err=911;err_chk
+fi
+#----------------------------------------------------------
+  pwd
+
+#----------------------------------------------------------
+# Run the rfcqpe_adjust.sh for $curdate
+#----------------------------------------------------------
+ echo  Run rfcqpe_adjust for $curdate
+ echo  Starting Running rfcqpe_adjust for $curdate
+ $USHccpa/ccpa_rfcqpe_adjust.sh $curdate 
+ echo  Just Finished rfcqpe_adjust for $curdate
+
+#----------------------------------------------------------
+# Enter the output directory (and rename the output files in the next step)
+#----------------------------------------------------------
+ cd $out_dir
+ $utilscript/setup.sh
+ if eval test -s rfc_adjusted_6hr_${grid}.1.grb -s rfc_adjusted_6hr_${grid}.2.grb \
+              -s rfc_adjusted_6hr_${grid}.3.grb -s rfc_adjusted_6hr_${grid}.4.grb
+  then
+   echo rfcqpe_adjust,  COMPLETED!
+  else
+   echo rfcqpe_adjust,  FAILED!
+   echo The program will be terminated!!!!
+   err=9;export err;err_chk
+  fi
+
+#----------------------------------------------------------
+# RENAME following the original ST4 system of file names
+#----------------------------------------------------------
+#mv -rfc rfc_adjusted_6hr_${grid}.1.grb ST4_ADJ_${grid}.${curdate}18.06h.grb
+#mv -rfc rfc_adjusted_6hr_${grid}.1.grb ST4_ADJ_${grid}.${datnext}00.06h.grb
+#mv -rfc rfc_adjusted_6hr_${grid}.1.grb ST4_ADJ_${grid}.${datnext}06.06h.grb
+#mv -rfc rfc_adjusted_6hr_${grid}.1.grb ST4_ADJ_${grid}.${datnext}12.06h.grb
+
+#----------------------------------------------------------
+# RENAME following the more convient system of file names
+#----------------------------------------------------------
+ mv -f rfc_adjusted_6hr_${grid}.1.grb ST4_ADJ_${grid}.${curdate}12.06h.grb
+ mv -f rfc_adjusted_6hr_${grid}.2.grb ST4_ADJ_${grid}.${curdate}12.12h.grb
+ mv -f rfc_adjusted_6hr_${grid}.3.grb ST4_ADJ_${grid}.${curdate}12.18h.grb
+ mv -f rfc_adjusted_6hr_${grid}.4.grb ST4_ADJ_${grid}.${curdate}12.24h.grb
+
+#----------------------------------------------------------
+# List grib file information for comparison
+#----------------------------------------------------------
+# output files: CCPA files
+ $EXECUTIL/wgrib -V ST4_ADJ_${grid}.${curdate}12.06h.grb
+ $EXECUTIL/wgrib -V ST4_ADJ_${grid}.${curdate}12.12h.grb
+ $EXECUTIL/wgrib -V ST4_ADJ_${grid}.${curdate}12.18h.grb
+ $EXECUTIL/wgrib -V ST4_ADJ_${grid}.${curdate}12.24h.grb
+
+# input files: STAGE IV files
+ $EXECUTIL/wgrib -V ${zfil_dir}/ST4.${curdate}18.06h 
+ $EXECUTIL/wgrib -V ${zfil_dir}/ST4.${datnext}00.06h 
+ $EXECUTIL/wgrib -V ${zfil_dir}/ST4.${datnext}06.06h 
+ $EXECUTIL/wgrib -V ${zfil_dir}/ST4.${datnext}12.06h 
+
+#----------------------------------------------------------
+#Copygb the output files to various resolution
+#----------------------------------------------------------
+ for res in 1.0d 0.5d 0.125d ndgd
+ do 
+  $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}.${curdate}12.06h
+  $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}.${curdate}12.12h
+  $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}.${curdate}12.18h
+  $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}.${curdate}12.24h
+ done
+
+du -g
+
+#----------------------------------------------------------
+# Creating the CCPA output directory 
+#----------------------------------------------------------
+ ofil_dir=$ODIR/$curdate
+ if [ -s $ofil_dir ]; then
+  echo $ofil_dir already exists!
+ else
+  mkdir -p $ofil_dir
+  echo $ofil_dir is created !
+ fi
+
+#----------------------------------------------------------
+#Make a Copy of the output files in CCPA output directory 
+# and then MOVE them to the COMOUT ( /com/ ) directory 
+#----------------------------------------------------------
+ for hh in 06 12 18 24
+ do 
+  case $hh in 
+   06) tt=18;ymd=$curdate;; 
+   12) tt=00;ymd=$datnext;;
+   18) tt=06;ymd=$datnext;;
+   24) tt=12;ymd=$datnext
+  esac
+  OUTDIR=$COMOUT.$ymd/$tt/ccpa
+  mkdir -p $OUTDIR
+   if [ $SENDCCPA == YES ]; then
+  cp -pr ST4_ADJ_${grid}.${curdate}12.${hh}h.grb     $ofil_dir/CCPA_${grid}.${curdate}12.${hh}h.grb 
+   fi
+   if [ "$SENDCOM" = "YES" ]; then
+  mv  ST4_ADJ_${grid}.${curdate}12.${hh}h.grb        $OUTDIR/ccpa_conus_${grid}_t${tt}z_06h 
+  mv  ST4_ADJ_${grid}.${curdate}12.${hh}h_ndgd.grb   $OUTDIR/ccpa_conus_ndgd_t${tt}z_06h 
+  mv  ST4_ADJ_${grid}.${curdate}12.${hh}h_1.0d.grb   $OUTDIR/ccpa_conus_1.0d_t${tt}z_06h 
+  mv  ST4_ADJ_${grid}.${curdate}12.${hh}h_0.5d.grb   $OUTDIR/ccpa_conus_0.5d_t${tt}z_06h 
+  mv  ST4_ADJ_${grid}.${curdate}12.${hh}h_0.125d.grb $OUTDIR/ccpa_conus_0.125d_t${tt}z_06h 
+
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_${grid}_t${tt}z_06h $OUTDIR/ccpa_conus_${grid}_t${tt}z_06h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_ndgd_t${tt}z_06h $OUTDIR/ccpa_conus_ndgd_t${tt}z_06h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_1.0d_t${tt}z_06h $OUTDIR/ccpa_conus_1.0d_t${tt}z_06h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_0.5d_t${tt}z_06h $OUTDIR/ccpa_conus_0.5d_t${tt}z_06h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_0.125d_t${tt}z_06h $OUTDIR/ccpa_conus_0.125d_t${tt}z_06h_gb2 
+   fi
+
+   if [ "$SENDDBN" = 'YES' ]; then
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_${grid}_t${tt}z_06h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_ndgd_t${tt}z_06h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_1.0d_t${tt}z_06h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_0.5d_t${tt}z_06h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_0.125d_t${tt}z_06h_gb2
+   fi
+ done
+ cd $work_dir
+ cd ../
+   fi      # for "if [ $ESCAPE == NO ]"
+#----------------------------------------------------------
+# Split CCPA 6 hourly analysis into 3 hourly 
+#----------------------------------------------------------
+
+ for hour in 18 00 06 12
+ do 
+
+  ESCAPE_03h=YES
+
+  case $hour in 
+
+   18) ESCAPE_03h=$ESCAPE_03h_18;datedir=$curdate;h3=15;h6=18;;
+   00) ESCAPE_03h=$ESCAPE_03h_00;datedir=$datnext;h3=21;h6=00;;
+   06) ESCAPE_03h=$ESCAPE_03h_06;datedir=$datnext;h3=03;h6=06;;
+   12) ESCAPE_03h=$ESCAPE_03h_12;datedir=$datnext;h3=09;h6=12
+
+  esac
+
+  if [ $ESCAPE == NO -o $ESCAPE_03h == NO ]; then 
+#----------------------------------------------------------
+# Run the ccpa_6h_to_3h.sh for $1 $hour
+#----------------------------------------------------------
+ echo  Run ccpa_6h_to_3h.sh for $1 $hour
+ echo  Starting Running ccpa_6h_to_3h.sh for $1 $hour
+ $USHccpa/ccpa_6h_to_3h.sh $1 $hour
+ echo  Just Finished ccpa_6h_to_3h.sh for $1 $hour
+
+#----------------------------------------------------------
+# Enter the output directory (and rename the output files in the next step)
+#---------------------------------------------------------- 
+ cd $DATA/ccpa_$datedir$hour
+ if eval test -s rfc_adjusted_3hr.1.grb -s  rfc_adjusted_3hr.2.grb
+  then
+   echo ccpa_6h_to_3h,  COMPLETED!
+
+#----------------------------------------------------------
+# RENAME following the more convient system of file names
+#----------------------------------------------------------
+#  mv -f rfc_adjusted_3hr.1.grb ST4_ADJ_${grid}_t${h3}z_03h.grb
+#  mv -f rfc_adjusted_3hr.2.grb ST4_ADJ_${grid}_t${h6}z_03h.grb
+   cp -p rfc_adjusted_3hr.1.grb ST4_ADJ_${grid}_t${h3}z_03h.grb
+   cp -p rfc_adjusted_3hr.2.grb ST4_ADJ_${grid}_t${h6}z_03h.grb
+
+#----------------------------------------------------------
+#Copygb the output files to various resolution
+#----------------------------------------------------------
+ for res in 1.0d 0.5d 0.125d ndgd
+ do 
+  $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}_t${h3}z_03h
+  $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}_t${h6}z_03h
+ done
+
+du -g
+
+#----------------------------------------------------------
+#Make a Copy of the output files in CCPA output directory 
+# and then MOVE them to the COMOUT ( /com/ ) directory 
+#----------------------------------------------------------
+ OUTDIR=${COMOUT}.${datedir}/$hour/ccpa
+ mkdir -p $OUTDIR
+   if [ "$SENDCOM" = "YES" ]; then
+  mv  ST4_ADJ_${grid}_t${h3}z_03h.grb $OUTDIR/ccpa_conus_${grid}_t${h3}z_03h
+  mv  ST4_ADJ_${grid}_t${h3}z_03h_ndgd.grb $OUTDIR/ccpa_conus_ndgd_t${h3}z_03h
+  mv  ST4_ADJ_${grid}_t${h3}z_03h_1.0d.grb $OUTDIR/ccpa_conus_1.0d_t${h3}z_03h
+  mv  ST4_ADJ_${grid}_t${h3}z_03h_0.5d.grb $OUTDIR/ccpa_conus_0.5d_t${h3}z_03h
+  mv  ST4_ADJ_${grid}_t${h3}z_03h_0.125d.grb $OUTDIR/ccpa_conus_0.125d_t${h3}z_03h
+  mv  ST4_ADJ_${grid}_t${h6}z_03h.grb $OUTDIR/ccpa_conus_${grid}_t${h6}z_03h
+  mv  ST4_ADJ_${grid}_t${h6}z_03h_ndgd.grb $OUTDIR/ccpa_conus_ndgd_t${h6}z_03h
+  mv  ST4_ADJ_${grid}_t${h6}z_03h_1.0d.grb $OUTDIR/ccpa_conus_1.0d_t${h6}z_03h
+  mv  ST4_ADJ_${grid}_t${h6}z_03h_0.5d.grb $OUTDIR/ccpa_conus_0.5d_t${h6}z_03h
+  mv  ST4_ADJ_${grid}_t${h6}z_03h_0.125d.grb $OUTDIR/ccpa_conus_0.125d_t${h6}z_03h
+
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_${grid}_t${h3}z_03h $OUTDIR/ccpa_conus_${grid}_t${h3}z_03h_gb2
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_ndgd_t${h3}z_03h $OUTDIR/ccpa_conus_ndgd_t${h3}z_03h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_1.0d_t${h3}z_03h $OUTDIR/ccpa_conus_1.0d_t${h3}z_03h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_0.5d_t${h3}z_03h $OUTDIR/ccpa_conus_0.5d_t${h3}z_03h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_0.125d_t${h3}z_03h $OUTDIR/ccpa_conus_0.125d_t${h3}z_03h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_${grid}_t${h6}z_03h $OUTDIR/ccpa_conus_${grid}_t${h6}z_03h_gb2
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_ndgd_t${h6}z_03h $OUTDIR/ccpa_conus_ndgd_t${h6}z_03h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_1.0d_t${h6}z_03h $OUTDIR/ccpa_conus_1.0d_t${h6}z_03h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_0.5d_t${h6}z_03h $OUTDIR/ccpa_conus_0.5d_t${h6}z_03h_gb2 
+ $EXECUTIL/cnvgrib -g12 -p40 $OUTDIR/ccpa_conus_0.125d_t${h6}z_03h $OUTDIR/ccpa_conus_0.125d_t${h6}z_03h_gb2
+   fi
+
+   if [ "$SENDDBN3H" = 'YES' ]; then
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_${grid}_t${h3}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_ndgd_t${h3}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_1.0d_t${h3}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_0.5d_t${h3}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_0.125d_t${h3}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_${grid}_t${h6}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_ndgd_t${h6}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_1.0d_t${h6}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_0.5d_t${h6}z_03h_gb2
+     $DBNROOT/bin/dbn_alert MODEL CCPA_GB2 $job $OUTDIR/ccpa_conus_0.125d_t${h6}z_03h_gb2
+   fi
+
+  else
+   echo ccpa_6h_to_3h,  FAILED!
+#   echo The program will be terminated!!!!
+#   err=9;export err;err_chk
+ fi
+
+   fi      # for "if [ $ESCAPE == NO -o $ESCAPE_03h == NO ]"
+ done
+ 
+set +x
+echo " "
+echo "LEAVING SUB SCRIPT $0 "
+echo " "
+set -x
