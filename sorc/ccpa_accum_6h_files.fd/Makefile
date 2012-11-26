@@ -1,16 +1,10 @@
-SHELL=  /bin/sh
-ISIZE = 4
-RSIZE = 8
-#COMP=   g95
-COMP=   xlf90_r7
-#LIBS=   -L/export/lnx305/wd20mch/griblib -lw3 -lbacio
-LIBS=   /nwprod/lib/libbacio_4.a \
-        /nwprod/lib/libw3_4.a \
-        /nwprod/lib/libip_4.a \
-        /nwprod/lib/libsp_4.a \
-        -l essl
-LDFLAGS= 
+SHELL=	/bin/sh
+LIBS=   -L/nwprod/lib/ -lbacio_4 -lw3emc_4 -lw3nco_4  -lip_4 -lsp_4 
+SRCS=	CCPA_accum_6h_files.f90
+CMD=	ccpa_accum_6h_files
+FC=	ifort
 FFLAGS=
+#FFLAGS=	-O3 -qsuffix=f=f90 -qlist -qsource -bnoquiet 
 
-CCPA_accum_6h_files:    CCPA_accum_6h_files.f90
-	$(COMP) $(FFLAGS) -o ccpa_accum_6h_files CCPA_accum_6h_files.f90 $(LIBS)
+$(CMD):	$(SRCS)
+	$(FC) $(SRCS) $(FFLAGS) -o $(@) $(OBJS) $(LIBS)
