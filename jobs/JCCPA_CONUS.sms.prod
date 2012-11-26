@@ -1,10 +1,26 @@
-#!/bin/sh
+#!/bin/bash
+#####!/bin/sh
+
+version=oper
 
 export PS4='$SECONDS + '
 $SMSBIN/smsinit $LOADL_STEP_ID
 date
 
 set -xa
+
+if [ $# -eq 0 ]; then
+ exit
+ envir=prod
+ PTM=
+ COM=/com
+ export HOMEccpa=/nw${envir}
+else
+ envir=dev
+ PTM=/ptmp/$LOGNAME
+ COM=/com_canned
+ export HOMEccpa=/ensemble/save/$LOGNAME/CCPA_$version
+fi 
 
 #
 # #### 02/24/2010 ##########################################################
@@ -19,8 +35,6 @@ set -xa
 #
 # PTM: Switch it to /ptmp/$LOGNAM for developer mode
 #
-PTM=
-#PTM=/ptmp/$LOGNAME
 
 ####################################
 # obtain unique process id (pid) and make temp directory
@@ -64,12 +78,21 @@ export pgmout="OUTPUT.${pid}"
 # SENDCCPA: switch for copying the CCPA output (hrap domain only)
 #            files to the CCPA directory for developer's monitoring 
 ##############################################
-export SENDCOM=YES
-export SENDSMS=YES
-export SENDDBN=YES
-export SENDDBN3H=YES
-export SENDCCPA=YES 
-export COPYSRC=NO
+if [ $envir = prod ]; then
+ export SENDCOM=YES
+ export SENDSMS=YES
+ export SENDDBN=YES
+ export SENDDBN3H=YES
+ export SENDCCPA=YES 
+ export COPYSRC=NO
+else
+ export SENDCOM=YES
+ export SENDSMS=YES
+ export SENDDBN=NO
+ export SENDDBN3H=NO
+ export SENDCCPA=YES 
+ export COPYSRC=NO
+fi
 
 #########################################################################
 # Define input, output directories for monitoring purpose
@@ -90,7 +113,7 @@ export ODIR=$DATA/CCPA_out    #directory used to store output files at
 ####################################
 export interp=3
 export grid=hrap
-export COMIN=/com/hourly/prod/nam_pcpn_anal
+export COMIN=$COM/hourly/prod/nam_pcpn_anal
 export COMOUT=$PTM/com/${NET}/${envir}/${RUN}
 export GESDIR=$PTM/nwges/${envir}/ccpa
 
@@ -98,7 +121,6 @@ export GESDIR=$PTM/nwges/${envir}/ccpa
 # Specify Execution Areas
 # Switch home_dir to /nwprod for operation
 ####################################
-export HOMEccpa=/nw${envir}
 export EXECccpa=$HOMEccpa/exec
 export USHccpa=$HOMEccpa/ush
 export coeff_dir=$HOMEccpa/fix/CCPA_CONUS_reg_coef_8thd  
@@ -122,8 +144,10 @@ sh $utilscript/setup.sh
 ##############################
 sh $utilscript/setpdy.sh
 . PDY
+exit
 
-if [ $# -eq 0 ]; then
+#if [ $# -eq 0 ]; then
+if [ $envir = prod ]; then
 # REAL TIME MODE
 #############################################################
 # Execute the script
@@ -208,7 +232,9 @@ if eval test -s $DATA/warning
 then
   echo "\n\n3h analysis output is incomplete. Make sure above files are available for next run." >>$DATA/warning
   echo "If we just switched machines - copy files from backup CCS" >>$DATA/warning
+ if [ $envir = prod ]; then
   mail -v -s "CCPA: Missing data detected" -c "Yan.Luo@noaa.gov" NCEP.List.PMB-PROD@noaa.gov<$DATA/warning
+ fi 
 fi
 
 cat $pgmout.*
@@ -218,8 +244,10 @@ postmsg "$jlogfile" "$msg"
 ##############################
 # Remove the Temporary working directory
 ##############################
+if [ $envir = prod ]; then
 cd /tmpnwprd
 rm -rf $DATA
+fi
 
 date
 $SMSBIN/endt
