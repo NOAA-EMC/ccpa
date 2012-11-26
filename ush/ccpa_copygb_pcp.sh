@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 ############################################################
 #HISTORY:
 #2008:       Scripts available through the work of Mike Charles
