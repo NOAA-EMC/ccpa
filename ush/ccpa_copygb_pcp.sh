@@ -58,7 +58,7 @@ EOF
 set +x
 
 ((i=1))
-while [ i -lt 256 ]
+while [ $i -lt 256 ]
 do
  echo "NBS("$i")=16," >> namelist.temp
  ((i=i+1))

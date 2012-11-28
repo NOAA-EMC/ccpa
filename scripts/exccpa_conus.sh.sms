@@ -311,7 +311,9 @@ cd $work_dir
 #----------------------------------------------------------
 #check coefficient/mask file availability, copy them to work directory 
 #----------------------------------------------------------
-if eval test -f $coeff_a -f $coeff_b  -f $mask_fil
+if eval test -f $coeff_a \
+          -a -f $coeff_b \
+          -a -f $mask_fil 
 then
  echo Copying coefficient a and b files for $curdate, to work directory 
  cp -f $coeff_a $work_dir/a.bin
@@ -338,15 +340,17 @@ fi
 #----------------------------------------------------------
  cd $out_dir
  $utilscript/setup.sh
- if eval test -s rfc_adjusted_6hr_${grid}.1.grb -s rfc_adjusted_6hr_${grid}.2.grb \
-              -s rfc_adjusted_6hr_${grid}.3.grb -s rfc_adjusted_6hr_${grid}.4.grb
-  then
+if eval test -s rfc_adjusted_6hr_${grid}.1.grb \
+          -a -s rfc_adjusted_6hr_${grid}.2.grb \
+          -a -s rfc_adjusted_6hr_${grid}.3.grb \
+          -a -s rfc_adjusted_6hr_${grid}.4.grb 
+then
    echo rfcqpe_adjust,  COMPLETED!
   else
    echo rfcqpe_adjust,  FAILED!
    echo The program will be terminated!!!!
    err=9;export err;err_chk
-  fi
+fi
 
 #----------------------------------------------------------
 # RENAME following the original ST4 system of file names
@@ -476,7 +480,8 @@ du -g
 # Enter the output directory (and rename the output files in the next step)
 #---------------------------------------------------------- 
  cd $DATA/ccpa_$datedir$hour
- if eval test -s rfc_adjusted_3hr.1.grb -s  rfc_adjusted_3hr.2.grb
+ if eval test -s rfc_adjusted_3hr.1.grb \
+           -a -s rfc_adjusted_3hr.2.grb
   then
    echo ccpa_6h_to_3h,  COMPLETED!
 
