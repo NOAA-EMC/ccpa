@@ -13,7 +13,8 @@
 #04/25/2011: Script finalized by Yan Luo for 1st CCPA upgrade
 ############################################################
 
-#!/usr/bin/sh
+####!/usr/bin/sh
+#!/bin/bash
 
 set +x
 echo " "
