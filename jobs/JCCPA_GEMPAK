@@ -1,0 +1,86 @@
+#!/bin/sh
+
+##############################################
+# Runs CCPA Gempak processing on 5 file types
+##############################################
+
+set -xa
+# ################################
+# SET SHELL PROCESSING VARIABLES
+# ################################
+export PS4='$SECONDS + '
+date
+#
+# obtain unique process id (pid) and make temp directories
+#
+export pid=$$
+export DATA=/tmpnwprd1/${job}.${pid}
+mkdir $DATA
+cd $DATA
+
+####################################
+# File To Log Msgs
+####################################
+export jlogfile=/com/logs/jlogfiles/jlogfile.${job}.${pid}
+
+####################################
+# Determine Job Output Name on System
+####################################
+export outid="LL$job"
+export jobid="${outid}.o${pid}"
+export pgmout="OUTPUT.${pid}"
+
+export cycle=t${cyc}z
+
+export SENDCOM=YES
+export SENDDBN=YES 
+export SENDECF=YES
+
+#
+# Set up model and cycle specific variables
+#
+export NET=gens
+export RUN=ccpa
+
+export DBN_ALERT_TYPE=CCPA_GEMPAK
+
+#
+# Now set up GEMPAK/NTRANS environment
+#
+. /nwprod/gempak/.gempak
+
+###################################
+# Set up the UTILITIES
+###################################
+export utilscript=/nwprod/util/ush
+export utilities=/nwprod/util/ush
+export utilexec=/nwprod/util/exec
+
+# Run setup to initialize working directory and utility scripts
+$utilscript/setup.sh
+# Run setpdy and initialize PDY variables
+$utilscript/setpdy.sh
+. PDY
+
+export com=/com/${NET}/${envir}
+export COMIN=/com/${NET}/${envir}
+export COMOUT=/com/nawips/${envir}/${RUN}.${PDY}
+
+
+if [ ! -f $COMOUT ] ; then
+  mkdir -p -m 775 $COMOUT
+fi
+
+env
+
+########################################################
+# Execute the script.
+/nw${envir}/scripts/exccpa_gempak.sh.ecf
+########################################################
+
+cat $pgmout
+
+cd /tmpnwprd1
+rm -rf $DATA
+
+date
