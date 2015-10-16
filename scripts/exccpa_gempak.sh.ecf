@@ -1,0 +1,108 @@
+#! /bin/sh
+# exccpa_gempak.sh
+
+# Created on: Dec 21, 2010
+#     Author: bmabe
+
+###################################################################
+echo "CCPA_gempak.sh.sms ---------------------------------"
+echo "- convert CCPA GRIB files into GEMPAK Grids"
+echo "----------------------------------------------------"
+echo "History: Oct 2010 - Converted exnawips script for CCPA."
+echo "         Jan 2012 - Modify to run 2x per day."
+#####################################################################
+set -xa
+
+cd $DATA
+
+msg="Begin job for $job"
+postmsg "$jlogfile" "$msg"
+
+cpyfil=gds
+garea=dset
+gbtbls=
+maxgrd=4999
+kxky=
+grdarea=
+proj=
+output=T
+
+pdsext=no
+NAGRIB=nagrib2
+
+# Get current UTC hour
+hour=`date -u "+%H"`
+
+# Determine grid file name and CCPA files to access based upon the hour
+# The processing as of 1/2012 is run 2 times per day, once ~1610Z and again at ~0010Z.  The 
+# 0010Z run functions as an update to the earlier ~16Z run.
+
+# If running the ~00Z, make sure to set the grid file name and 18Z file to D-2.
+# Adding some leeway in case the job runs late. 
+if [ `expr $hour + 0` -le 2 ]; then 
+    fullddate=${PDYm1}
+    fullddate1=${PDYm2}
+else
+    fullddate=${PDY}
+    fullddate1=${PDYm1}  
+fi
+
+ for filin in hrap ndgd 1.0d 0.5d 0.125d
+ do
+
+    GEMGRD="${COMOUT}/ccpa_conus_${filin}_${fullddate1}12"
+
+   for cyc in 18 00 06 12
+   do
+    
+     if [ "${cyc}" = "18" ]; then 
+      GRIBIN="${COMIN}/gefs.${fullddate1}/${cyc}/${RUN}/ccpa_conus_${filin}_t${cyc}z_06h_gb2"
+      
+     else
+      GRIBIN="${COMIN}/gefs.${fullddate}/${cyc}/${RUN}/ccpa_conus_${filin}_t${cyc}z_06h_gb2"
+      
+     fi
+
+$NAGRIB << EOF
+   GBFILE   = $GRIBIN
+   INDXFL   = 
+   GDOUTF   = $GEMGRD
+   PROJ     = $proj
+   GRDAREA  = $grdarea
+   KXKY     = $kxky
+   MAXGRD   = $maxgrd
+   CPYFIL   = $cpyfil
+   GAREA    = $garea
+   OUTPUT   = $output
+   GBTBLS   = $gbtbls
+   GBDIAG   = 
+   PDSEXT   = $pdsext
+   OVERWR   = yes
+  l
+  r
+EOF
+   done
+  
+gpend
+
+
+   if [ -s $GEMGRD -a "$SENDDBN" = "YES" ]; then
+     $DBNROOT/bin/dbn_alert MODEL $DBN_ALERT_TYPE $job $GEMGRD
+   fi
+
+ done
+
+#####################################################################
+# GOOD RUN
+set +x
+echo "**************JOB CCPA_Gempak COMPLETED NORMALLY ON THE IBM"
+echo "**************JOB CCPA_Gempak COMPLETED NORMALLY ON THE IBM"
+echo "**************JOB CCPA_Gempak COMPLETED NORMALLY ON THE IBM"
+set -x
+#####################################################################
+
+msg='Job completed normally.'
+echo $msg
+postmsg "$jlogfile" "$msg"
+
+############################### END OF SCRIPT #######################

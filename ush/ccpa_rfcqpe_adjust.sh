@@ -1,4 +1,5 @@
-#!/usr/bin/sh
+###!/bin/sh
+#!/bin/bash
 set -x 
 
 echo $#
@@ -55,7 +56,9 @@ dd=` echo $date | cut -c7-8 `
   echo Interpolating 24-hour RFC grib to 1/8th deg...
   $USHccpa/ccpa_copygb_pcp.sh $interp 8thd rfc_24h                       #4
 # Alpha and beta grids
-  if eval test -f a.bin -f b.bin -f mask_0125deg.bin
+  if eval test -f a.bin \
+            -a -f b.bin \
+            -a -f mask_0125deg.bin
   then
    echo Coefficient files a.bin and b.bin and mask_0125deg.bin are available!
   else
