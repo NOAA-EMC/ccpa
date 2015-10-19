@@ -4,15 +4,6 @@ set -xa
 export PS4='$SECONDS + '
 date
 
-# Define the root directory in which the output and work directories are located
-# PTM: Work place, switch it to /ptmp/$LOGNAM for developer mode
-# COM: PATH for the Stage IV data
-# HOMEccpa: PATH of the code/script package
-#
-PTM=${PTM:-""}
-COM=${COM:-/com}
-export HOMEccpa=${HOMEccpa:-/nw${envir}}
-
 #
 # #### 02/24/2010 ##########################################################
 # Statistically adjust STAGE IV precipitation analysis (6-hourly)
@@ -24,58 +15,38 @@ export HOMEccpa=${HOMEccpa:-/nw${envir}}
 #  Stage IV (all other CONUS RFCs)
 # #### 12/10/2012 ##########################################################
 # Slightly modified the script for WCOSS execution, and subversion control
+# #### 07/10/2015 ##########################################################
+# Update the regression coefficients with extended historical training data 
+#  sets from 2002 to 2014; use Stage II hourly in both NWRFC and CNRFC instead 
+#  of NWRFC only, while using Stage IV hourly in remaining areas as weights to 
+#  produce 3-hourly CCPA; extend CCPA look-back period by making additional
+#  runs at 1/3/5/7 days past the valid date; include 2.5 km NDGD grid analysis. 
 # ##########################################################################
 
 ####################################
-# obtain unique process id (pid) and make temp directory
+# make temp directory
 ####################################
-export pid=$$
-export DATA=${DATA:-/tmpnwprd1/${job}.${pid}}
+export DATA=${DATA:-${DATAROOT}/${job}.${pid}}
 mkdir -p $DATA
 cd $DATA
 
 ##############################################
-# MET, ENVIR and RUN: used to define the output directory
+# NET, ENVIR and RUN: used to define the output directory
 ##############################################
-export NET=gens
-export RUN=gefs
+export NET=${NET:-ccpa}
+export RUN=${RUN:-ccpa}
 
-export cycle=t${cyc}z
-
-####################################
-# File To Log Msgs
-####################################
-export jlogfile=${jlogfile:-/com/logs/jlogfiles/jlogfile.${job}.${pid}}
+export cycle=${cycle:-t${cyc}z}
 
 ####################################
 # Determine Job Output Name on System
 ####################################
-export outid="LL$job"
-export jobid="${outid}.o${pid}"
 export pgmout="OUTPUT.${pid}"
-
-##############################################
-# SENDCOM  - Copy Files From TMPDIR to $COMOUT
-# SENDECF  - Flag Events on ECF
-# COPYSRC - switch for re-copying source files of STAGE IV data files
-#   YES  =   do the re-copy anyway
-#   NO   =   do the re-copy ONLY IF the files has been updated since last time of execution 
-# SENDCCPA: switch for copying the CCPA output (hrap domain only)
-#            files to the CCPA directory for developer's monitoring 
-##############################################
-export SENDCOM=${SENDCOM:-YES}
-export SENDECF=${SENDECF:-YES}
-export SENDDBN=${SENDDBN:-YES}
-export SENDDBN3H=${SENDDBN3H:-YES}
-export SENDCCPA=${SENDCCPA:-YES}
-export COPYSRC=${COPYSRC:-NO}
 
 #########################################################################
 # Define input, output directories for monitoring purpose
 #########################################################################
-export ZDIR=${ZDIR:-/com/${NET}/${envir}/${RUN}/ccpa_st4}    #directory used to store STAGE IV raw data
-                                      #One subdirectory for each date
-export ODIR=${ODIR:-$DATA/CCPA_out}    #directory used to store output files at
+export DATAOUT=${DATAOUT:-$DATA/CCPA_out}    #directory used to store output files at
                                       #the same grid as STAGE IV
                                       #One subdirectory for each date
 
@@ -84,44 +55,44 @@ export ODIR=${ODIR:-$DATA/CCPA_out}    #directory used to store output files at
 ##############################################
 #  interp -----  -i parameter for copygb (method of interpolation)  
 #  grid ---- grid definition of input data, defined in ../ush/copygb_pcp.sh
-#  COMIN ---- (Partial) name of directory of INPUT, source of STAGE IV raw data
+#  COMINhourly ---- (Partial) name of directory of INPUT, source of STAGE IV raw data
 #  COMOUT ---- (Partial) name of directory of OUTPUT files
 ####################################
 export interp=3
 export grid=hrap
-export COMIN=${COMIN:-$COM/hourly/prod/nam_pcpn_anal}
-export COMOUT=${COMOUT:-/com/${NET}/${envir}/${RUN}}
-export GESDIR=${GESDIR:-/nwges/${envir}/ccpa}
+export COMINhourly=${COMINhourly:-${COMROOTp1}/hourly/prod/nam_pcpn_anal}
+export COMOUT=${COMOUT:-${COMROOT}/${NET}/${envir}/${RUN}}
+export GESOUT=${GESOUT:-${GESROOT}/${envir}/ccpa}
 
-mkdir -p $GESDIR
+mkdir -p $GESOUT
 
 ####################################
 # Specify Execution Areas
 # Switch home_dir to /nwprod for operation
 ####################################
+export HOMEccpa=${HOMEccpa:-${NWROOT}/ccpa.${ccpa_ver}}
 export EXECccpa=$HOMEccpa/exec
 export USHccpa=$HOMEccpa/ush
-export coeff_dir=$HOMEccpa/fix/CCPA_CONUS_reg_coef_8thd  
-export mask_fil=$HOMEccpa/fix/CCPA_CONUS_cpc_mask_8thd.bin
+export FIXccpa=$HOMEccpa/fix
 
-export utilscript=/nwprod/util/ush
-export EXECUTIL=/nwprod/util/exec
+export coeff_dir=$FIXccpa/CCPA_CONUS_reg_coef_8thd 
+export mask_fil=$FIXccpa/CCPA_CONUS_cpc_mask_8thd.bin
 
-#----------------------------------------------------------
-# Executables
-#
-export nhours=/nwprod/util/exec/ndate
-
-##############################
-# Run setup to initialize working directory and utility scripts
-##############################
-$utilscript/setup.sh
+module use /nwprod2/modulefiles
+module load prod_util/v1.0.1
+module load grib_util/v1.0.1
 
 ##############################
 # Run setpdy and initialize PDY variables
 ##############################
-$utilscript/setpdy.sh
+setpdy.sh
 . PDY
+
+##############################
+# Print current environment
+##############################
+
+env
 
 #############################################################
 # Execute the script
@@ -137,8 +108,10 @@ export out_dir=$work_dir/outST4   #to store the output CCPA files
 mkdir -p $rfc_dir
 mkdir -p $out_dir
 mkdir -p $work_dir/rfc_ST4      
+
   echo  Run Today job -----  processing 24h precip ending at 12Z Today
   $HOMEccpa/scripts/exccpa_conus.sh.ecf $PDYm1 $PDY 
+
 cd $DATA
 
 echo *************************************************************
@@ -159,23 +132,57 @@ export out_dir=$work_dir/outST4   #to store the output CCPA files
 mkdir -p $rfc_dir
 mkdir -p $out_dir
 mkdir -p $work_dir/rfc_ST4      
+
   echo  Re-Run Yesterday job -----  processing 24h precip ending at 12Z Yesterday
   $HOMEccpa/scripts/exccpa_conus.sh.ecf $PDYm2 $PDYm1 
+
 cd $DATA
 
+echo *************************************************************
+echo *************************************************************
+echo *************************************************************
+
+#  Re-Run 3/5/7-day jobs ( processing 24h precip ending at 12Z)
+#  If the source data files are not updated, the script will stop.        
+#  This will be the case for most days.
+
+# We also need PDYm8 for CCPA 7-day look-back.  The excutable script 'PDY'
+# only sets up Dm7-Dp7.  
+export PDYm8=`finddate.sh $PDY d-8`
+
+for day in 3 5 7
+do
+ case $day in
+ 3) day1=$PDYm4;day2=$PDYm3;;
+ 5) day1=$PDYm6;day2=$PDYm5;;
+ 7) day1=$PDYm8;day2=$PDYm7
+ esac
+
+##############################
+#  Specify work directory 
+##############################
+export work_dir=$DATA/$day2
+mkdir -p $work_dir
+cd $work_dir
+export rfc_dir=$work_dir/dataST4  #to store the input STAGE IV files
+export out_dir=$work_dir/outST4   #to store the output CCPA files
+mkdir -p $rfc_dir
+mkdir -p $out_dir
+mkdir -p $work_dir/rfc_ST4
+
+  echo  Re-Run $day2 job -----  processing 24h precip ending at 12Z $day2
+
+  $HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2
+
+cd $DATA
+
+echo *************************************************************
+echo *************************************************************
+echo *************************************************************
+
+done
+
 echo `hostname`
-
-
-#check for missing files and send appropriate email to NCO/Yan
-if eval test -s $DATA/warning
-then
-  echo "\n\n3h analysis output is incomplete. Make sure above files are available for next run." >>$DATA/warning
-  echo "If we just switched machines - copy files from backup CCS" >>$DATA/warning
-# if [ $envir = prod ]; then
-#  mail -v -s "CCPA: Missing data detected" -c "Yan.Luo@noaa.gov" sdm@noaa.gov<$DATA/warning
-# fi 
-  cat $DATA/warning
-fi
 
 cat $pgmout.*
 msg="JOB COMPLETED NORMALLY"
@@ -184,7 +191,9 @@ postmsg "$jlogfile" "$msg"
 ##############################
 # Remove the Temporary working directory
 ##############################
-cd /tmpnwprd1
-rm -rf $DATA
+cd ${DATAROOT}
+if [ $KEEPDATA != 'YES' ]; then
+  rm -rf $DATA
+fi
 
 date

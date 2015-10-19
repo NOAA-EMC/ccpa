@@ -1,0 +1,12 @@
+Library are defined in Module_CCPA_v3.0.0
+
+To build codes:
+
+    cd /XXXX/ccpa.v3.0.0/sorc
+     1) bash
+     2) module purge
+     3) module use .
+     4) module load Module_CCPA_v3.0.0        
+     5) ./build.sh
+     6) ./install.sh
+
