@@ -29,7 +29,7 @@ export jobid="${outid}.o${pid}"
 ##############################################
 # Define root directories and home directory
 ##############################################
-export NWROOT=${NWROOT:-/nw${envir}}
+export NWROOT=${NWROOT:-${NWROOT}}
 export DATAROOT=${DATAROOT:-/tmpnwprd2}
 export COMROOT=${COMROOT:-/com2}
 export COMROOTp1=${COMROOTp1:-/com}
@@ -60,7 +60,7 @@ export COPYSRC=${COPYSRC:-NO}
 export KEEPDATA=${KEEPDATA:-YES}
 
 # versions file for ccpa sets $model_ver and $code_ver
-VERSION_FILE=/nw${envir}/versions/ccpa.ver
+VERSION_FILE=$NWROOT/versions/ccpa.ver
 if [ -f $VERSION_FILE ]; then
    . $VERSION_FILE
 else
@@ -70,7 +70,7 @@ else
 fi
 
 # CALL executable job script here
-/nw${envir}/ccpa.${model_ver}/jobs/JCCPA_CONUS
+$NWROOT/ccpa.${model_ver}/jobs/JCCPA_CONUS
 
 if [ $? -ne 0 ]; then
    ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
