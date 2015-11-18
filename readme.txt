@@ -7,7 +7,7 @@ CCPA v3.0.0 Implementation Instructions:
 
 2. Set up the package
    After  copying this directory to "(your file location)", you need to do the following:
-   (1) check jobs/JCCPA_CONUS to make sure the following modules and tags are available:
+   (1) Check jobs/JCCPA_CONUS to make sure the following modules and tags are available:
 
     /nwprod2/modulefiles
 
@@ -17,15 +17,15 @@ CCPA v3.0.0 Implementation Instructions:
 
     ics.v13.1p
 
-   (2) build the executables of CCPA
-       go to the sorc sub-directory, following the instructions in README.build file, all the executables 
+   (2) Build the executables of CCPA
+       Go to the sorc sub-directory, following the instructions in README.build file, all the executables 
 will be generated and saved in the exec sub-directory.
 
 
 3.  Start the test run, on wcoss
-    Please check and modify (if it is necessaray) the ecf/jccpa_conus_00.ecf, ecf/jccpa_conus_12.ecf, 
+    Please check and modify (if it is necessary) the ecf/jccpa_conus_00.ecf, ecf/jccpa_conus_12.ecf, 
 jobs/JCCPA_CONUS, to make sure the paths of the source and output files are correct. 
-    Run ecf/jccpa_conus_00.ecf and ecf/jccpa_conus_12.ecf to launch ccpa jobs.
+    Run ecf/jccpa_conus_00.ecf and ecf/jccpa_conus_12.ecf to launch CCPA jobs.
 
    
 4.  Resources requirements 
@@ -46,8 +46,8 @@ jobs/JCCPA_CONUS, to make sure the paths of the source and output files are corr
    (1) Additional 2.5 km NDGD grid product
 
    (2) Product directory structure change
-         current:    /com/gens/prod/gefs.yyyymmdd/cyc/ccpa
-         upgrade:    /com2/ccpa/prod/ccpa.yyyymmdd/cyc
+         Current:    /com/gens/prod/gefs.yyyymmdd/cyc/ccpa
+         Upgrade:    /com2/ccpa/prod/ccpa.yyyymmdd/cyc
 
    (3) NCEP FTP/NOMADS:
          ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/ccpa/prod/ccpa.YYYYMMDD/HH
@@ -56,7 +56,3 @@ jobs/JCCPA_CONUS, to make sure the paths of the source and output files are corr
    (4) File name change by following NCO filename conventions
        e.g.,
          ccpa_conus_0.5d_t21z_03h_gb2 -> ccpa.t21z.03h.0p5.conus.gb2
-
-
-
-
