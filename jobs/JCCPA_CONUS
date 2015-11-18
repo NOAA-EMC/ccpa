@@ -70,7 +70,6 @@ mkdir -p $GESOUT
 # Specify Execution Areas
 # Switch home_dir to /nwprod for operation
 ####################################
-export HOMEccpa=${HOMEccpa:-${NWROOT}/ccpa.${ccpa_ver}}
 export EXECccpa=$HOMEccpa/exec
 export USHccpa=$HOMEccpa/ush
 export FIXccpa=$HOMEccpa/fix

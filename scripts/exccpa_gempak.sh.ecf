@@ -47,7 +47,7 @@ else
     fullddate1=${PDYm1}  
 fi
 
- for filin in hrap ndgd 1.0d 0.5d 0.125d
+ for filin in hrap ndgd5p0 ndgd2p5 1p0 0p5 0p125
  do
 
     GEMGRD="${COMOUT}/ccpa_conus_${filin}_${fullddate1}12"
@@ -56,11 +56,9 @@ fi
    do
     
      if [ "${cyc}" = "18" ]; then 
-      GRIBIN="${COMIN}/gefs.${fullddate1}/${cyc}/${RUN}/ccpa_conus_${filin}_t${cyc}z_06h_gb2"
-      
+      GRIBIN="${COMIN}/ccpa.${fullddate1}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
      else
-      GRIBIN="${COMIN}/gefs.${fullddate}/${cyc}/${RUN}/ccpa_conus_${filin}_t${cyc}z_06h_gb2"
-      
+      GRIBIN="${COMIN}/ccpa.${fullddate}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
      fi
 
 $NAGRIB << EOF

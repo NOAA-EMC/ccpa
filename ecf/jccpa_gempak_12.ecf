@@ -1,11 +1,11 @@
-#BSUB -J jccpa_conus_12
-#BSUB -o /com2/output/%ENVIR%/today/ccpa_conus_12.o%J
-#BSUB -e /com2/output/%ENVIR%/today/ccpa_conus_12.o%J
+#BSUB -J jccpa_gempak_12
+#BSUB -o /com2/output/%ENVIR%/today/ccpa_gempak_12.o%J
+#BSUB -e /com2/output/%ENVIR%/today/ccpa_gempak_12.o%J
 #BSUB -L /bin/sh
 #BSUB -cwd /tmpnwprd2
 #BSUB -q %QUEUE%_shared
 #BSUB -n 1
-#BSUB -b 16:10
+#BSUB -b 16:40
 #BSUB -W 1:30
 #BSUB -P %PROJ%
 #BSUB -R rusage[mem=500]
@@ -22,7 +22,7 @@ set -x
 export pid=$$
 export envir=%ENVIR%
 export cyc=12
-export job=ccpa_conus_12
+export job=ccpa_gempak_12
 export outid="LL$job"
 export jobid="${outid}.o${pid}"
 
@@ -32,8 +32,6 @@ export jobid="${outid}.o${pid}"
 export NWROOT=${NWROOT:-${NWROOT}}
 export DATAROOT=${DATAROOT:-/tmpnwprd2}
 export COMROOT=${COMROOT:-/com2}
-export COMROOTp1=${COMROOTp1:-/com}
-export GESROOT=${GESROOT:-/nwges2}
 export HOMEccpa=${HOMEccpa:-${NWROOT}/ccpa.${ccpa_ver}}
 
 ####################################
@@ -55,8 +53,6 @@ export jlogfile=${jlogfile:-${COMROOT}/logs/jlogfiles/jlogfile.${job}.${pid}}
 export SENDCOM=${SENDCOM:-YES}
 export SENDECF=${SENDECF:-YES}
 export SENDDBN=${SENDDBN:-YES}
-export SENDCCPA=${SENDCCPA:-YES}
-export COPYSRC=${COPYSRC:-NO}
 export KEEPDATA=${KEEPDATA:-YES}
 
 # versions file for ccpa sets $model_ver and $code_ver
@@ -70,7 +66,7 @@ else
 fi
 
 # CALL executable job script here
-$NWROOT/ccpa.${model_ver}/jobs/JCCPA_CONUS
+$NWROOT/ccpa.${model_ver}/jobs/JCCPA_GEMPAK
 
 if [ $? -ne 0 ]; then
    ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"
