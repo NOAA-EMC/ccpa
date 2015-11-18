@@ -2,6 +2,8 @@ program COMP_ST4_ST2_3h_files
 !###########################################################
 !HISTORY:
 !02/18/2011: Program created by Yan Luo
+!07/02/2015: Program modified by Yan Luo for using Stage II hourlies as weights
+!            in both NWRFC and CNRFC instead of NWRFC only
 !###########################################################
 
 !$$$ MAIN PROGRAM DOCUMENTATION BLOCK
@@ -130,7 +132,7 @@ jpds(7) = 0
 	! Reshape stream of data into 2D matrix
 	rfc_mask        = reshape(temp_array,(/nx,ny/))
 
-! Read 3-hr Stage IV precip file with data in NWRFC only (rfc_mask=12)  
+! Read 3-hr Stage IV precip file without data in CNRFC (rfc_mask=1) and NWRFC (rfc_mask=12)  
         pcp_3hr = 0
 	! Set filename
 	filename='rfc4_03h.grb'
@@ -149,11 +151,11 @@ jpds(7) = 0
 	
 	! Reshape stream of data into 2D matrix
 	pcp4_3hr        = reshape(temp_array,(/nx,ny/))
- 	where ( rfc_mask < 12.0 ) pcp_3hr=pcp_3hr + pcp4_3hr  !results same as previous statement
+ 	where ( rfc_mask .ne. 1.0 .and. rfc_mask .ne. 12.0 ) pcp_3hr=pcp_3hr + pcp4_3hr  !results same as previous statement
 ! DHOU: Tests show that the accuracy of the 6h files is 0.1mm, so 0.01 is used as threshold
 
 
-! Read 3-hr Stage II precip file without data in NWRFC (rfc_mask < 12)  
+! Read 3-hr Stage II precip file with data in CNRFC and NWRFC only
 	! Set filename
 	filename='rfc2_03h.grb'
         print *, 'read file:', filename
@@ -172,7 +174,7 @@ jpds(7) = 0
 	! Reshape stream of data into 2D matrix
 	pcp2_3hr        = reshape(temp_array,(/nx,ny/))
 ! Combine 3-hr Stage II precip file with 3-hr Stage IV precip file
- 	where ( rfc_mask >= 12.0 ) pcp_3hr= pcp_3hr + pcp2_3hr  !results same as previous statement
+ 	where ( rfc_mask == 1.0 .or. rfc_mask == 12.0 ) pcp_3hr= pcp_3hr + pcp2_3hr  !results same as previous statement
 ! DHOU: Tests show that the accuracy of the 6h files is 0.1mm, so 0.01 is used as threshold
 
 

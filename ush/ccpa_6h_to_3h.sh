@@ -37,7 +37,7 @@ dd=` echo $ymd | cut -c7-8 `
 #
 # Accumulate precip (Fortran)
    echo Accumulating precip over 3 hours...
-ccpa_6hr=$COMOUT.$datedir/$hour/ccpa
+ccpa_6hr=$COMOUT.$datedir/$hour
 mask_dir=$HOMEccpa/fix
 
 temp_dir=$DATA/ccpa_$datedir$hour
@@ -49,20 +49,19 @@ else
 fi
 
 cd $temp_dir
-$utilscript/setup.sh
 
 cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.grb
 
    Num=0
    for HH in $h0_3 
    do
-   if [ -s $COMIN.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
+   if [ -s $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
    (( Num=Num+1 ))
-    cp -p  $COMIN.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
+    cp -p  $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
     gunzip $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz
     cp -p  $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb rfc_01h_${Num}.grb
    else
-    echo $COMIN.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
+    echo $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
     exit
    fi 
    done
@@ -85,13 +84,13 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    Num=0
    for HH in $h0_3 
    do
-   if [ -s $COMIN.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
+   if [ -s $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
    (( Num=Num+1 ))
-    cp -p  $COMIN.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
+    cp -p  $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
     gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
     cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_01h_${Num}.grb
    else
-    echo $COMIN.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
+    echo $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
     exit
    fi 
    done
@@ -128,23 +127,23 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    for HH in $h3_6 
    do
   if [ $HH == 00 ]; then
-    if [ -s $COMIN.$datnext/ST2ml${datnext}${HH}.Grb.gz ]; then
+    if [ -s $COMINhourly.$datnext/ST2ml${datnext}${HH}.Grb.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMIN.$datnext/ST2ml${datnext}${HH}.Grb.gz $temp_dir
+     cp -p  $COMINhourly.$datnext/ST2ml${datnext}${HH}.Grb.gz $temp_dir
      gunzip $temp_dir/ST2ml${datnext}${HH}.Grb.gz
      cp -p  $temp_dir/ST2ml${datnext}${HH}.Grb rfc_01h_${Num}.grb
     else
-     echo $COMIN.$datnext/ST2ml${datnext}${HH}.Grb.gz does not exist  >>$DATA/warning 
+     echo $COMINhourly.$datnext/ST2ml${datnext}${HH}.Grb.gz does not exist  >>$DATA/warning 
      exit
     fi 
   else
-    if [ -s $COMIN.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
+    if [ -s $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMIN.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
+     cp -p  $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
      gunzip $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz
      cp -p  $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb rfc_01h_${Num}.grb
     else
-     echo $COMIN.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
+     echo $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
      exit
     fi 
   fi
@@ -169,23 +168,23 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    for HH in $h3_6 
    do
   if [ $HH == 00 ]; then
-    if [ -s $COMIN.$datnext/ST4.${datnext}${HH}.01h.gz ]; then
+    if [ -s $COMINhourly.$datnext/ST4.${datnext}${HH}.01h.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMIN.$datnext/ST4.${datnext}${HH}.01h.gz $temp_dir
+     cp -p  $COMINhourly.$datnext/ST4.${datnext}${HH}.01h.gz $temp_dir
      gunzip $temp_dir/ST4.${datnext}${HH}.01h.gz
      cp -p  $temp_dir/ST4.${datnext}${HH}.01h rfc_01h_${Num}.grb
     else
-     echo $COMIN.$datnext/ST4.${datnext}${HH}.01h.gz does not exist  >>$DATA/warning 
+     echo $COMINhourly.$datnext/ST4.${datnext}${HH}.01h.gz does not exist  >>$DATA/warning 
      exit
     fi 
   else
-    if [ -s $COMIN.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
+    if [ -s $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMIN.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
+     cp -p  $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
      gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
      cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_01h_${Num}.grb
     else
-     echo $COMIN.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
+     echo $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
      exit
     fi 
   fi
@@ -225,14 +224,14 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
 #
 # Split  6-hourly CCPA into 3-hourly CCPA (Fortran)
 
-  if eval test -s $ccpa_6hr/ccpa_conus_hrap_t${hour}z_06h
+  if eval test -s $ccpa_6hr/ccpa.t${hour}z.06h.hrap.conus
   then
-  cp $ccpa_6hr/ccpa_conus_hrap_t${hour}z_06h $temp_dir/rfc_scaled_downscaled.grb 
+  cp $ccpa_6hr/ccpa.t${hour}z.06h.hrap.conus $temp_dir/rfc_scaled_downscaled.grb
   echo Disaggregating into 3-hourly amounts...                         #5     
   $EXECccpa/ccpa_6h_to_3h ${ymd}${t1}0003 ${ymd}${t2}0003  >> $pgmout 2>errfile             
   export err=$?; err_chk
   echo Disaggregation done
   else
-   echo $ccpa_6hr/ccpa_conus_hrap_t${hour}z_06h does not exist  >>$DATA/warning 
+   echo $ccpa_6hr/ccpa.t${hour}z.06h.hrap.conus does not exist  >>$DATA/warning
    exit
   fi
