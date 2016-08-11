@@ -26,6 +26,7 @@ date
 ####################################
 # make temp directory
 ####################################
+export pid=$$
 export DATA=${DATA:-${DATAROOT}/${job}.${pid}}
 mkdir -p $DATA
 cd $DATA
@@ -70,15 +71,14 @@ mkdir -p $GESOUT
 # Specify Execution Areas
 # Switch home_dir to /nwprod for operation
 ####################################
-export EXECccpa=$HOMEccpa/exec
-export USHccpa=$HOMEccpa/ush
-export FIXccpa=$HOMEccpa/fix
+export HOMEccpa=${HOMEccpa:-$NWROOT/ccpa.${ccpa_ver}}
+export EXECccpa=${EXECccpa:-$HOMEccpa/exec}
+export USHccpa=${USHccpa:-$HOMEccpa/ush}
+export FIXccpa=${FIXccpa:-$HOMEccpa/fix}
 
 export coeff_dir=$FIXccpa/CCPA_CONUS_reg_coef_8thd 
 export mask_fil=$FIXccpa/CCPA_CONUS_cpc_mask_8thd.bin
 
-module use /nwprod2/modulefiles
-module load prod_util/v1.0.1
 module load grib_util/v1.0.1
 
 ##############################
@@ -110,6 +110,8 @@ mkdir -p $work_dir/rfc_ST4
 
   echo  Run Today job -----  processing 24h precip ending at 12Z Today
   $HOMEccpa/scripts/exccpa_conus.sh.ecf $PDYm1 $PDY 
+
+  ecflow_client --event release_gempak
 
 cd $DATA
 

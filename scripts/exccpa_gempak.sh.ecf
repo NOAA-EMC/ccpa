@@ -42,23 +42,47 @@ hour=`date -u "+%H"`
 if [ `expr $hour + 0` -le 2 ]; then 
     fullddate=${PDYm1}
     fullddate1=${PDYm2}
+    fullddate2=${PDYm3}
+    fullddate3=${PDYm4}
+    fullddate4=${PDYm5}
+    fullddate5=${PDYm6}
+    fullddate6=${PDYm7}
+    fullddate7=${PDYm8}
 else
     fullddate=${PDY}
     fullddate1=${PDYm1}  
+    fullddate2=${PDYm2}
+    fullddate3=${PDYm3}
+    fullddate4=${PDYm4}
+    fullddate5=${PDYm5}
+    fullddate6=${PDYm6}
+    fullddate7=${PDYm7}
 fi
 
  for filin in hrap ndgd5p0 ndgd2p5 1p0 0p5 0p125
  do
 
-    GEMGRD="${COMOUT}/ccpa_conus_${filin}_${fullddate1}12"
+  for ctime in 1 2 3 4 
+  do
+  
+   case $ctime in
 
+     1) fullddate_a=$fullddate1;fullddate_b=$fullddate;;
+     2) fullddate_a=$fullddate3;fullddate_b=$fullddate2;;
+     3) fullddate_a=$fullddate5;fullddate_b=$fullddate4;;
+     4) fullddate_a=$fullddate7;fullddate_b=$fullddate6
+
+   esac
+
+    GEMGRD="${COMOUT}/ccpa_conus_${filin}_${fullddate_a}12"
+ 
    for cyc in 18 00 06 12
    do
     
      if [ "${cyc}" = "18" ]; then 
-      GRIBIN="${COMIN}/ccpa.${fullddate1}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
+      GRIBIN="${COMIN}/ccpa.${fullddate_a}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
      else
-      GRIBIN="${COMIN}/ccpa.${fullddate}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
+      GRIBIN="${COMIN}/ccpa.${fullddate_b}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
      fi
 
 $NAGRIB << EOF
@@ -83,10 +107,10 @@ EOF
   
 gpend
 
-
    if [ -s $GEMGRD -a "$SENDDBN" = "YES" ]; then
      $DBNROOT/bin/dbn_alert MODEL $DBN_ALERT_TYPE $job $GEMGRD
    fi
+  done
 
  done
 

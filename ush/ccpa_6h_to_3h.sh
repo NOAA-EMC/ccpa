@@ -15,7 +15,7 @@ else
   echo 'argument(s) required yyyymmdd hh'
   exit
 fi
-datnext=`$nhours +24 $curdate\00 | cut -c1-8`
+datnext=`$NDATE +24 $curdate\00 | cut -c1-8`
 #
 set -x
 

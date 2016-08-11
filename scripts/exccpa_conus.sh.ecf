@@ -209,9 +209,11 @@ do
 if [ -s $fname ]; then
  cp -p $fname $rfc_dir
 else
- echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ set +x
+ echo FATAL ERROR: PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
  echo $fname  ---- ST4 data file does not exists!
- echo please check the  directory $COMINhourly.$curdate!
+ echo Please check the  directory $COMINhourly.$curdate!
+ set -x
  err=911;export err=911;err_chk
 fi
 
@@ -232,9 +234,11 @@ if [ -s $fname ]; then
  gunzip $fname 
  echo $fname  is unzipped  !
 else
- echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ set +x
+ echo FATAL ERROR: PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
  echo $fname  ---- ST4.gz data file does not exists!
- echo  please check the  directory $COMINhourly.$curdate!
+ echo  Please check the  directory $COMINhourly.$curdate!
+ set -x
  err=911;export err=911;err_chk
 fi
 
@@ -258,9 +262,11 @@ then
  mv ST4.${datnext}06.06h $GESOUTccpa
  mv ST4.${datnext}12.06h $GESOUTccpa
 else
- echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ set +x
+ echo FATAL ERRROR: PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
  echo  At least one ST4 data file does not exists!
- echo  please check the  directory $rfc_dir/$curdate!
+ echo  Please check the  directory $rfc_dir/$curdate!
+ set -x
  err=911;export err=911;err_chk
 fi 
 
@@ -278,8 +284,10 @@ then
  cp -f $coeff_b $work_dir/b.bin
  cp -f $mask_fil $work_dir/mask_0125deg.bin
 else
- echo PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
+ set +x
+ echo FATAL ERROR: PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
  echo COEFFICIENT a and b FILES FOR $curdate, or THE MASK FILE, IS NOT AVAILABLE! 
+ set -x
  err=911;export err=911;err_chk
 fi
 #----------------------------------------------------------
