@@ -6,7 +6,7 @@
 #BSUB -q %QUEUE%_shared
 #BSUB -n 1
 #BSUB -b 00:40
-#BSUB -W 1:30
+#BSUB -W 00:35
 #BSUB -P %PROJ%
 #BSUB -R rusage[mem=500]
 #BSUB -R affinity[core]
@@ -19,7 +19,6 @@ set -x
 ####################################
 # Obtain unique process id (pid)
 ####################################
-export pid=$$
 export envir=%ENVIR%
 export cyc=12
 export job=ccpa_gempak_00
@@ -32,7 +31,6 @@ export jobid="${outid}.o${pid}"
 export NWROOT=${NWROOT:-${NWROOT}}
 export DATAROOT=${DATAROOT:-/tmpnwprd2}
 export COMROOT=${COMROOT:-/com2}
-export HOMEccpa=${HOMEccpa:-${NWROOT}/ccpa.${ccpa_ver}}
 
 ####################################
 # File To Log Msgs
@@ -66,7 +64,7 @@ else
 fi
 
 # CALL executable job script here
-$NWROOT/ccpa.${model_ver}/jobs/JCCPA_GEMPAK
+$NWROOT/ccpa.${ccpa_ver}/jobs/JCCPA_GEMPAK
 
 if [ $? -ne 0 ]; then
    ecflow_client --msg="***JOB ${ECF_NAME} ERROR RUNNING J-SCRIPT ***"

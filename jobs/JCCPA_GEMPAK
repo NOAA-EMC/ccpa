@@ -13,6 +13,7 @@ date
 #
 # obtain unique process id (pid) and make temp directories
 #
+export pid=$$
 export DATA=${DATA:-${DATAROOT}/${job}.${pid}}
 mkdir $DATA
 cd $DATA
@@ -32,6 +33,8 @@ export RUN=${RUN:-ccpa}
 
 export DBN_ALERT_TYPE=CCPA_GEMPAK
 
+export HOMEccpa=${HOMEccpa:-$NWROOT/ccpa.${ccpa_ver}}
+
 #
 # Now set up GEMPAK/NTRANS environment
 #
@@ -40,14 +43,13 @@ export DBN_ALERT_TYPE=CCPA_GEMPAK
 ###################################
 # Set up the UTILITIES
 ###################################
-module use /nwprod2/modulefiles
-module load prod_util/v1.0.1
-module load grib_util/v1.0.1
+#module load grib_util/v1.0.1
 
 # Run setpdy and initialize PDY variables
 setpdy.sh
 . PDY
 
+export PDYm8=`finddate.sh $PDY d-8`
 export COMIN=${COMIN:-${COMROOT}/${NET}/${envir}}
 export COMOUT=${COMOUT:-${COMROOT}/nawips/${envir}/${RUN}.${PDY}}
 
@@ -66,6 +68,6 @@ cat $pgmout
 
 cd ${DATAROOT}
 if [ $KEEPDATA != 'YES' ]; then
-rm -rf $DATA
+  rm -rf $DATA
 fi
 date
