@@ -43,7 +43,9 @@ export HOMEccpa=${HOMEccpa:-$NWROOT/ccpa.${ccpa_ver}}
 ###################################
 # Set up the UTILITIES
 ###################################
-#module load grib_util/v1.0.1
+module use /nwprod2/modulefiles
+module load prod_util/v1.0.1
+module load grib_util/v1.0.1
 
 # Run setpdy and initialize PDY variables
 setpdy.sh
@@ -68,6 +70,6 @@ cat $pgmout
 
 cd ${DATAROOT}
 if [ $KEEPDATA != 'YES' ]; then
-  rm -rf $DATA
+rm -rf $DATA
 fi
 date
