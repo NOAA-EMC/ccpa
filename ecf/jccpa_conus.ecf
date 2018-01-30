@@ -1,0 +1,42 @@
+#BSUB -J %E%ccpa_conus_%CYC%
+#BSUB -a poe
+#BSUB -o /com2/output/%ENVIR%/today/ccpa_conus_%CYC%.o%J
+#BSUB -L /bin/sh
+#BSUB -q %QUEUE%_shared
+#BSUB -n 5
+#BSUB -cwd /tmpnwprd_p2
+#BSUB -W 00:40
+#BSUB -R span[ptile=5]
+#BSUB -R affinity[core]
+#BSUB -P %PROJ%-%PROJENVIR%
+
+%include <head.h>
+%include <envir-p2.h>
+
+# EXPORT list here
+export cyc=12 #cyc=12 for both /prod00 and /prod12
+
+##############################################
+# COPYSRC - switch for re-copying source files of STAGE IV data files
+#   YES  =   do the re-copy anyway
+#   NO   =   do the re-copy ONLY IF the files has been updated since last time of execution
+# SENDCCPA - switch for copying the CCPA output (hrap domain only)
+#            files to the CCPA directory for developer's monitoring
+###############################################
+export SENDCCPA=${SENDCCPA:-YES}
+export COPYSRC=${COPYSRC:-NO}
+
+model=ccpa
+%include <model_ver.h>
+
+# CALL executable job script here
+${HOMEccpa}/jobs/JCCPA_CONUS
+
+%include <tail.h>
+
+%manual
+######################################################################
+# Purpose: This job runs the main CCPA job script for the CONUS domain
+#          
+######################################################################
+%end

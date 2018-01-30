@@ -1,6 +1,9 @@
 #!/bin/bash
 
 set -xa
+export MP_IOAGENT_CNT=all
+export MP_IO_BUFFER_SIZE=8M
+
 export PS4='$SECONDS + '
 date
 
@@ -15,19 +18,23 @@ date
 #  Stage IV (all other CONUS RFCs)
 # #### 12/10/2012 ##########################################################
 # Slightly modified the script for WCOSS execution, and subversion control
-# #### 07/10/2015 ##########################################################
+# #### 09/10/2015 ##########################################################
 # Update the regression coefficients with extended historical training data 
-#  sets from 2002 to 2014; use Stage II hourly in both NWRFC and CNRFC instead 
+#  sets from 2002 to 2015; use Stage II hourly in both NWRFC and CNRFC instead 
 #  of NWRFC only, while using Stage IV hourly in remaining areas as weights to 
 #  produce 3-hourly CCPA; extend CCPA look-back period by making additional
 #  runs at 1/3/5/7 days past the valid date; include 2.5 km NDGD grid analysis. 
+# #### 01/16/2018 ##########################################################
+# Update the regression coefficients with extended historical training data
+#  sets from 2002 to 2017; introduce hourly CCPA (new); improve 3-hourly CCPA
+#  by using Stage IV hourly data in the NWRFC and CNRFC areas
 # ##########################################################################
 
 ####################################
 # make temp directory
 ####################################
 export pid=$$
-export DATA=${DATA:-${DATAROOT}/${job}.${pid}}
+export DATA=${DATA:-${DATAROOT:?}/${jobid:?}}
 mkdir -p $DATA
 cd $DATA
 
@@ -56,12 +63,12 @@ export DATAOUT=${DATAOUT:-$DATA/CCPA_out}    #directory used to store output fil
 ##############################################
 #  interp -----  -i parameter for copygb (method of interpolation)  
 #  grid ---- grid definition of input data, defined in ../ush/copygb_pcp.sh
-#  COMINhourly ---- (Partial) name of directory of INPUT, source of STAGE IV raw data
+#  COMINpcpanl ---- (Partial) name of directory of INPUT, source of STAGE IV raw data
 #  COMOUT ---- (Partial) name of directory of OUTPUT files
 ####################################
 export interp=3
 export grid=hrap
-export COMINhourly=${COMINhourly:-${COMROOTp1}/hourly/prod/nam_pcpn_anal}
+export COMINpcpanl=${COMINpcpanl:-$(compath.py pcpanl/prod/pcpanl)}
 export COMOUT=${COMOUT:-${COMROOT}/${NET}/${envir}/${RUN}}
 export GESOUT=${GESOUT:-${GESROOT}/${envir}/ccpa}
 
@@ -79,6 +86,7 @@ export FIXccpa=${FIXccpa:-$HOMEccpa/fix}
 export coeff_dir=$FIXccpa/CCPA_CONUS_reg_coef_8thd 
 export mask_fil=$FIXccpa/CCPA_CONUS_cpc_mask_8thd.bin
 
+module use /nwprod2/modulefiles
 module load grib_util/v1.0.1
 
 ##############################
@@ -95,65 +103,20 @@ env
 
 #############################################################
 # Execute the script
-# Run Today's job (processing  24h precip ending at 12Z today)
-##############################
-#  Specify work directory 
-##############################
-export work_dir=$DATA/TODAY
-mkdir -p $work_dir
-cd $work_dir
-export rfc_dir=$work_dir/dataST4  #to store the input STAGE IV files
-export out_dir=$work_dir/outST4   #to store the output CCPA files
-mkdir -p $rfc_dir
-mkdir -p $out_dir
-mkdir -p $work_dir/rfc_ST4      
-
-  echo  Run Today job -----  processing 24h precip ending at 12Z Today
-  $HOMEccpa/scripts/exccpa_conus.sh.ecf $PDYm1 $PDY 
-
-  ecflow_client --event release_gempak
-
-cd $DATA
-
-echo *************************************************************
-echo *************************************************************
-echo *************************************************************
-
-#  Re-Run Yesterday's job ( processing 24h precip ending at 12Z Yesterday)
-#  If the source data files are not updated, the script will stop.        
-#  This will be the case for most days.
-##############################
-#  Specify work directory 
-##############################
-export work_dir=$DATA/YESTERDAY
-mkdir -p $work_dir
-cd $work_dir
-export rfc_dir=$work_dir/dataST4  #to store the input STAGE IV files
-export out_dir=$work_dir/outST4   #to store the output CCPA files
-mkdir -p $rfc_dir
-mkdir -p $out_dir
-mkdir -p $work_dir/rfc_ST4      
-
-  echo  Re-Run Yesterday job -----  processing 24h precip ending at 12Z Yesterday
-  $HOMEccpa/scripts/exccpa_conus.sh.ecf $PDYm2 $PDYm1 
-
-cd $DATA
-
-echo *************************************************************
-echo *************************************************************
-echo *************************************************************
-
-#  Re-Run 3/5/7-day jobs ( processing 24h precip ending at 12Z)
-#  If the source data files are not updated, the script will stop.        
-#  This will be the case for most days.
+# Run Today's job and Re-Run 1/3/5/7-day jobs ( processing 24h 
+# precip ending at 12Z)
+# If the source data files are not updated, the script will stop.        
+# This will be the case for most days.
 
 # We also need PDYm8 for CCPA 7-day look-back.  The excutable script 'PDY'
 # only sets up Dm7-Dp7.  
 export PDYm8=`finddate.sh $PDY d-8`
 
-for day in 3 5 7
+for day in 0 1 3 5 7
 do
  case $day in
+ 0) day1=$PDYm1;day2=$PDY;;
+ 1) day1=$PDYm2;day2=$PDYm1;;
  3) day1=$PDYm4;day2=$PDYm3;;
  5) day1=$PDYm6;day2=$PDYm5;;
  7) day1=$PDYm8;day2=$PDYm7
@@ -163,17 +126,23 @@ do
 #  Specify work directory 
 ##############################
 export work_dir=$DATA/$day2
+
+if [ $day == 0 ]; then
+  export work_dir=$DATA/TODAY
+fi
+
+if [ $day == 1 ]; then
+  export work_dir=$DATA/YESTERDAY
+fi
+
 mkdir -p $work_dir
 cd $work_dir
-export rfc_dir=$work_dir/dataST4  #to store the input STAGE IV files
-export out_dir=$work_dir/outST4   #to store the output CCPA files
-mkdir -p $rfc_dir
-mkdir -p $out_dir
-mkdir -p $work_dir/rfc_ST4
 
   echo  Re-Run $day2 job -----  processing 24h precip ending at 12Z $day2
 
-  $HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2
+  echo "$HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2 $work_dir" >>$DATA/poescript
+
+  ecflow_client --event release_gempak
 
 cd $DATA
 
@@ -182,6 +151,21 @@ echo *************************************************************
 echo *************************************************************
 
 done
+
+chmod 775 $DATA/poescript
+
+export MP_CMDFILE=$DATA/poescript
+export MP_EUIDEVICE=sn_all
+export MP_EUILIB=us
+export MP_PGMMODEL=mpmd
+export MP_TASK_AFFINITY=cpu
+
+####################
+# Execute the script 
+####################
+
+mpirun.lsf -cmdfile $DATA/poescript -pgmmodel mpmd -ilevel 3 -labelio yes -stdoutmode ordered
+export err=$?; err_chk
 
 echo `hostname`
 

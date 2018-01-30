@@ -1,8 +1,10 @@
-CCPA v3.0.0 Implementation Instructions: 
+CCPA v4.0.1 Implementation Instructions: 
+
+This package works well prior to the implementation of RTMA/URMA upgrade v2.6 (with pcpanl.v.3.0.0) on 12/13/2017
 
 1. Checkout svn tags:
 
-   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v3.0.0 
+   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v4.0.1 
 
 
 2. Set up the package
@@ -11,7 +13,7 @@ CCPA v3.0.0 Implementation Instructions:
 
     /nwprod2/modulefiles
 
-    prod_util.v1.0.1
+    prod_util
 
     grib_util.v1.0.1
 
@@ -23,36 +25,39 @@ will be generated and saved in the exec sub-directory.
 
 
 3.  Start the test run, on wcoss
-    Please check and modify (if it is necessary) the ecf/jccpa_conus_00.ecf, ecf/jccpa_conus_12.ecf, 
+    Please check and modify (if it is necessary) the ecf/ccpa_test.def, ecf/jccpa_conus.ecf, 
 jobs/JCCPA_CONUS, to make sure the paths of the source and output files are correct. 
-    Run ecf/jccpa_conus_00.ecf and ecf/jccpa_conus_12.ecf to launch CCPA jobs.
+    Run ecf/jccpa_conus.ecf twice at 16:10Z and 00:10Z to launch CCPA jobs.
+jobs/JCCPA_GEMPAK is triggered by completion of the JCCPA_CONUS job.
 
    
 4.  Resources requirements 
 
    (1) Compute resource information:
 
-       Continue to use 1 node. Run time increases from 10 to 20-25 minutes.  
+       Increase computer nodes from 1 to 5. Run time remains about the same for 20-25 minutes.  
 
    (2) Disk space
          
-      IBM Disk: 104 MB/day, latest 20days of output residing in /com2
+      IBM Disk: 300 MB/day, latest 20days of output residing in /com2
 
-      IBM Tape: 104 MB/day, save the day before 8 day's output in HPSS. 
+      IBM Tape: 300 MB/day, save the day before 8 day's output in HPSS. 
 
 
 5.  Product changes
 
-   (1) Additional 2.5 km NDGD grid product
+   Additional 1 hourly products on 6 grids:
+   (1) 0.125 degree latlon
+       e.g., ccpa.t06z.01h.0p125.conus.gb2
+   (2) 0.5 degree latlon
+       e.g., ccpa.t06z.01h.0p5.conus.gb2
+   (3) 1.0 degree latlon
+       e.g., ccpa.t06z.01h.1p0.conus.gb2
+   (4) hrap grid
+       e.g., ccpa.t06z.01h.hrap.conus.gb2
+   (5) 5.0km ndgd grid
+       e.g., ccpa.t06z.01h.ndgd5p0.conus.gb2
+   (6) 2.5km ndgd grid
+       e.g., ccpa.t06z.01h.ndgd2p5.conus.gb2
 
-   (2) Product directory structure change
-         Current:    /com/gens/prod/gefs.yyyymmdd/cyc/ccpa
-         Upgrade:    /com2/ccpa/prod/ccpa.yyyymmdd/cyc
 
-   (3) NCEP FTP/NOMADS:
-         ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/ccpa/prod/ccpa.YYYYMMDD/HH
-         http://nomads.ncep.noaa.gov/pub/data/nccf/com/ccpa/prod/ccpa.YYYYMMDD/HH 
-        
-   (4) File name change by following NCO filename conventions
-       e.g.,
-         ccpa_conus_0.5d_t21z_03h_gb2 -> ccpa.t21z.03h.0p5.conus.gb2

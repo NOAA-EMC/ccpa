@@ -1,0 +1,81 @@
+TITLE: 
+CCPA upgrade (v4.0.1)
+ 
+- Update of regression coefficients 
+- Addition of 1-hourly analysis
+
+CHANGE REQUEST CLASS: 
+Major change 
+
+DESCRIPTION OF CHANGE:  
+
+CCPA upgrade will update the regression coefficients with extended historical training data sets from
+2002 to 2017; add 1 hourly analysis. This package works well prior to the RTMA/URMA v2.6 (pcpanl v3.0.0)
+implementation on 12/13/2017.
+ 
+Required changes in the following files:
+
+  1) ecf/jccpa_conus_00.ecf&jccpa_conus_12.ecf
+   - Removed and replaced with other three files in 2)
+
+  2) ecf/ccpa_test.def&jccpa_conus.ecf&jccpa_gempak.ecf
+   - Adopted from NCO and modified to increase computor nodes from 1 to 5 
+
+  3) jobs/JCCPA_CONUS
+   - Modified to change the CCPA running order
+   - Modified to change job runs from serial to 5 parallels
+
+  4) scripts/exccpa_conus.sh.ecf
+   - Modified to add 1-hourly analysis products
+
+  5) ush/ccpa_6h_to_3h.sh
+   - Modified slightly for data input path
+
+  6) ush/ccpa_6h_to_1h.sh
+   - Added to produce 1-hourly analysis products 
+
+  7) ush/ccpa_copygb_pcp.sh
+   - Modified to change 0.5 degree analysis products
+
+  8) ush/ccpa_rfcqpe_adjust.sh
+   - Modified slightly for data input path
+
+  9) sorc/Module_CCPA_v4.0.0
+   - Replaced with sorc/Module_CCPA_v3.0.0 for consistency
+
+  10) sorc/ccpa_comp_st4_st2_1h_files.fd
+   - Added to produce 1-hourly composites
+    
+  11 sorc/ccpa_6h_to_1h.fd 
+   - Added to produce 1-hourly analysis products using 9)
+
+  12) fix/CCPA_CONUS_reg_coef_8thd
+   - Modified to replace with a new set of regression coefficients
+
+BENEFIT OF CHANGE: 
+
+By updating regression coefficients with extended training data sets, this upgrade will improve analysis quality. 
+Adding 1-hourly CCPA will support MDL's National Blend of Model (NBM) project. 
+
+USER IMPACT STATEMENT:
+
+External community will pay attention to the new 1-hourly products and their file names. 
+There will be no significant changes to the current CCPA output data structure and file names. 
+The community will be informed of these changes via 30-day parallel run, with an evaluation of 
+relevant collaborators/users. A TIN will be issued.
+
+TECHNICAL IMPACT STATEMENT:
+
+Some impacts to data distributed via all distribution platforms are specified. Furthermore, due to the change of rerun 
+schedule from last implenmentation, the product is subject to dynamic updates and finalized at 8 days after the valid date. 
+Therefore, it is recommended that it should save the data the current date 8 days ago for data archive. 
+
+RISKS:
+
+PROPOSED IMPLEMENTATION
+DATE: 
+TIME:
+
+BUGFIXES
+
+

@@ -1,0 +1,13 @@
+suite test
+  family ccpa
+    edit CYC 12
+    edit PROJ 'GEN'
+    edit QUEUE 'preprod2'
+    edit COMPATH '/com2/pcpanl/para'
+    task jccpa_conus
+      event 1 release_gempak
+      time 16:10
+    task jccpa_gempak
+      trigger jccpa_conus:release_gempak
+  endfamily
+endsuite
