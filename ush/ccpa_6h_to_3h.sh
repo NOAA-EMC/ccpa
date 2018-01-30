@@ -40,7 +40,7 @@ dd=` echo $ymd | cut -c7-8 `
 ccpa_6hr=$COMOUT.$datedir/$hour
 mask_dir=$HOMEccpa/fix
 
-temp_dir=$DATA/ccpa_$datedir$hour
+temp_dir=$DATA/ccpa_${datedir}${hour}_03h
 if [ -s $temp_dir ]; then
  echo $temp_dir already exists!
 else
@@ -55,13 +55,13 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    Num=0
    for HH in $h0_3 
    do
-   if [ -s $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
+   if [ -s $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
    (( Num=Num+1 ))
-    cp -p  $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
+    cp -p  $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
     gunzip $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz
     cp -p  $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb rfc_01h_${Num}.grb
    else
-    echo $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
+    echo $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
     exit
    fi 
    done
@@ -84,13 +84,13 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    Num=0
    for HH in $h0_3 
    do
-   if [ -s $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
+   if [ -s $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
    (( Num=Num+1 ))
-    cp -p  $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
+    cp -p  $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
     gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
     cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_01h_${Num}.grb
    else
-    echo $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
+    echo $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
     exit
    fi 
    done
@@ -127,23 +127,23 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    for HH in $h3_6 
    do
   if [ $HH == 00 ]; then
-    if [ -s $COMINhourly.$datnext/ST2ml${datnext}${HH}.Grb.gz ]; then
+    if [ -s $COMINpcpanl.$datnext/ST2ml${datnext}${HH}.Grb.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMINhourly.$datnext/ST2ml${datnext}${HH}.Grb.gz $temp_dir
+     cp -p  $COMINpcpanl.$datnext/ST2ml${datnext}${HH}.Grb.gz $temp_dir
      gunzip $temp_dir/ST2ml${datnext}${HH}.Grb.gz
      cp -p  $temp_dir/ST2ml${datnext}${HH}.Grb rfc_01h_${Num}.grb
     else
-     echo $COMINhourly.$datnext/ST2ml${datnext}${HH}.Grb.gz does not exist  >>$DATA/warning 
+     echo $COMINpcpanl.$datnext/ST2ml${datnext}${HH}.Grb.gz does not exist  >>$DATA/warning 
      exit
     fi 
   else
-    if [ -s $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
+    if [ -s $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
+     cp -p  $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
      gunzip $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz
      cp -p  $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb rfc_01h_${Num}.grb
     else
-     echo $COMINhourly.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
+     echo $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
      exit
     fi 
   fi
@@ -168,23 +168,23 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    for HH in $h3_6 
    do
   if [ $HH == 00 ]; then
-    if [ -s $COMINhourly.$datnext/ST4.${datnext}${HH}.01h.gz ]; then
+    if [ -s $COMINpcpanl.$datnext/ST4.${datnext}${HH}.01h.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMINhourly.$datnext/ST4.${datnext}${HH}.01h.gz $temp_dir
+     cp -p  $COMINpcpanl.$datnext/ST4.${datnext}${HH}.01h.gz $temp_dir
      gunzip $temp_dir/ST4.${datnext}${HH}.01h.gz
      cp -p  $temp_dir/ST4.${datnext}${HH}.01h rfc_01h_${Num}.grb
     else
-     echo $COMINhourly.$datnext/ST4.${datnext}${HH}.01h.gz does not exist  >>$DATA/warning 
+     echo $COMINpcpanl.$datnext/ST4.${datnext}${HH}.01h.gz does not exist  >>$DATA/warning 
      exit
     fi 
   else
-    if [ -s $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
+    if [ -s $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
     (( Num=Num+1 ))
-     cp -p  $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
+     cp -p  $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
      gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
      cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_01h_${Num}.grb
     else
-     echo $COMINhourly.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
+     echo $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
      exit
     fi 
   fi

@@ -30,11 +30,11 @@ dd=` echo $date | cut -c7-8 `
 
    for HH in 06 12 18 24
    do
-   if [ -s rfc_ST4/rfc_orig_$HH.grb ]; then
+   if [ -s $work_dir/rfc_ST4/rfc_orig_$HH.grb ]; then
     (( Num=HH/6 ))
-    cp -pr rfc_ST4/rfc_orig_$HH.grb rfc_06h_$Num.grb
+    cp -pr $work_dir/rfc_ST4/rfc_orig_$HH.grb rfc_06h_$Num.grb
    else
-    echo rfc_ST4/rfc_orig_$HH.grb Does not exist, check $work_dir/$date 
+    echo $work_dir/rfc_ST4/rfc_orig_$HH.grb Does not exist, check $work_dir/$date 
     exit
    fi 
    done

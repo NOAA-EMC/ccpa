@@ -5,6 +5,7 @@
 #2008:       Scripts available through the work of Mike Charles
 #03/24/2010: Script slightly modified by Dingchen Hou for CCPA initial implementation
 #06/30/2015: Script slightly modified by Yan Luo for adding 2.5KM NDGD grid
+#09/26/2017: Script slightly modified by Yan Luo for changing 0.5 degree grid
 ############################################################
 
 set -x 
@@ -29,7 +30,8 @@ OUT='.'
 case $res in
 
  1p0) grid="3";;
- 0p5) grid="255 0 720 361 -90000 000000 128 90000 359500 500 500 64";;
+ 0p5) grid="4";;
+#0p5) grid="255 0 720 361 -90000 000000 128 90000 359500 500 500 64";; old version
  0p25) grid="255 0 232 112 25125 235125 128 52875 292875 250 250 64";;
  0p125) grid="110 0 464 224 250625 2350625 128 529375 2929375 125 125 64";;
  8thd) grid="255 0 464 224 25125 235125 128 53000 293000 125 125 64";;
