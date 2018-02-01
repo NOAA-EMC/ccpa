@@ -1,5 +1,5 @@
 TITLE: 
-CCPA upgrade (v4.0.2)
+CCPA upgrade (v4.0.0)
  
 - Update of regression coefficients 
 - Change of 3-hourly CCPA for improved quality of Stage IV hourly in NWRFC and CNRFC
@@ -21,7 +21,7 @@ Required changes in the following files:
    - Removed and replaced with other three files in 2)
 
   2) ecf/ccpa_test.def&jccpa_conus.ecf&jccpa_gempak.ecf
-   - Added and modified to increase computor nodes from 1 to 5 
+   - Added and modified to increase computer nodes from 1 to 5 
 
   3) jobs/JCCPA_CONUS
    - Modified to change the CCPA running order
@@ -69,7 +69,7 @@ relevant collaborators/users. A TIN will be issued.
 TECHNICAL IMPACT STATEMENT:
 
 Some impacts to data distributed via all distribution platforms are specified. Furthermore, due to the change of rerun 
-schedule from last implenmentation, the product is subject to dynamic updates and finalized at 8 days after the valid date. 
+schedule from last implementation, the product is subject to dynamic updates and finalized at 8 days after the valid date. 
 Therefore, it is recommended that it should save the data the current date 8 days ago for data archive. 
 
 RISKS:

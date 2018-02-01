@@ -1,14 +1,12 @@
-CCPA v4.0.2 Implementation Instructions: 
-
-This package works well after the implementation of RTMA/URMA upgrade v2.6 (with pcpanl.v.3.0.0) on 12/13/2017
+CCPA v4.0.0 Implementation Instructions: 
 
 1. Checkout svn tags:
 
-   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v4.0.2 
+   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v4.0.0 
 
 
 2. Set up the package
-   After  copying this directory to "(your file location)", you need to do the following:
+   After copying this directory to "(your file location)", you need to do the following:
    (1) Check jobs/JCCPA_CONUS to make sure the following modules and tags are available:
 
     /nwprod2/modulefiles
@@ -46,12 +44,12 @@ jobs/JCCPA_GEMPAK is triggered by completion of the JCCPA_CONUS job.
 
 5.  Product changes
 
-   Additional 1 hourly products on 6 grids:
-   (1) 0.125 degree latlon
+   Additional 1-hourly products on 6 grids:
+   (1) 0.125 degree 
        e.g., ccpa.t06z.01h.0p125.conus.gb2
-   (2) 0.5 degree latlon
+   (2) 0.5 degree 
        e.g., ccpa.t06z.01h.0p5.conus.gb2
-   (3) 1.0 degree latlon
+   (3) 1.0 degree 
        e.g., ccpa.t06z.01h.1p0.conus.gb2
    (4) hrap grid
        e.g., ccpa.t06z.01h.hrap.conus.gb2
