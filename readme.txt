@@ -1,10 +1,10 @@
-CCPA v4.0.1 Implementation Instructions: 
+CCPA v4.0.2 Implementation Instructions: 
 
-This package works well prior to the implementation of RTMA/URMA upgrade v2.6 (with pcpanl.v.3.0.0) on 12/13/2017
+This package works well after the implementation of RTMA/URMA upgrade v2.6 (with pcpanl.v.3.0.0) on 12/13/2017
 
 1. Checkout svn tags:
 
-   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v4.0.1 
+   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v4.0.2 
 
 
 2. Set up the package
@@ -59,5 +59,4 @@ jobs/JCCPA_GEMPAK is triggered by completion of the JCCPA_CONUS job.
        e.g., ccpa.t06z.01h.ndgd5p0.conus.gb2
    (6) 2.5km ndgd grid
        e.g., ccpa.t06z.01h.ndgd2p5.conus.gb2
-
-
+       The 2.5km ndgd grid was modified to have the same grids specifications for the MDL's Blend 2.5km CONUS grid.

@@ -7,6 +7,8 @@
 # This script extends CCPA to include 2.5 km NDGD output grids
 ###### 01/16/2018 #######################################################
 # This script extends CCPA to include 1-hourly precipitation analysis
+# This script removes Stage II hourly data as input
+# This script modifies the 2.5km ndgd grid as the MDL/NBM specified
 #########################################################################
 
 ############################################################
@@ -76,12 +78,10 @@ if [ $COPYSRC == YES ]; then
   for h1 in 13 14 15 16 17 18 19 20 21 22 23
   do
   cp -p $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz $GESOUTccpa
-  cp -p $COMINpcpanl.$curdate/ST2ml${curdate}${h1}.Grb.gz $GESOUTccpa 
   done
   for h1 in 00 01 02 03 04 05 06 07 08 09 10 11 12
   do
   cp -p $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz $GESOUTccpa
-  cp -p $COMINpcpanl.$datnext/ST2ml${datnext}${h1}.Grb.gz $GESOUTccpa 
   done
   ESCAPE=NO
   ESCAPE_03h_18=NO
@@ -130,12 +130,6 @@ else
     cp -p $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz $GESOUTccpa
     ESCAPE_03h_18=NO
   fi
-  cmp $GESOUTccpa/ST2ml${curdate}${h1}.Grb.gz $COMINpcpanl.$curdate/ST2ml${curdate}${h1}.Grb.gz
-  scm=$?
-  if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$curdate/ST2ml${curdate}${h1}.Grb.gz $GESOUTccpa
-    ESCAPE_03h_18=NO
-  fi
   done
 
   ESCAPE_03h_00=YES
@@ -147,23 +141,11 @@ else
     cp -p $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz $GESOUTccpa
     ESCAPE_03h_00=NO
   fi
-  cmp $GESOUTccpa/ST2ml${curdate}${h1}.Grb.gz $COMINpcpanl.$curdate/ST2ml${curdate}${h1}.Grb.gz
-  scm=$?
-  if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$curdate/ST2ml${curdate}${h1}.Grb.gz $GESOUTccpa
-    ESCAPE_03h_00=NO
-  fi
   done
   cmp $GESOUTccpa/ST4.${datnext}00.01h.gz $COMINpcpanl.$datnext/ST4.${datnext}00.01h.gz
   scm=$?
   if [ $scm -gt 0 ]; then
     cp -p $COMINpcpanl.$datnext/ST4.${datnext}00.01h.gz $GESOUTccpa
-    ESCAPE_03h_00=NO
-  fi
-  cmp $GESOUTccpa/ST2ml${datnext}00.Grb.gz $COMINpcpanl.$datnext/ST2ml${datnext}00.Grb.gz
-  scm=$?
-  if [ $scm -gt 0 ]; then
-    cp -p $COMINpcpanl.$datnext/ST2ml${datnext}00.Grb.gz $GESOUTccpa
     ESCAPE_03h_00=NO
   fi
 
@@ -176,12 +158,6 @@ else
     cp -p $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz $GESOUTccpa
     ESCAPE_03h_06=NO
   fi
-  cmp $GESOUTccpa/ST2ml${datnext}${h1}.Grb.gz $COMINpcpanl.$datnext/ST2ml${datnext}${h1}.Grb.gz
-  scm=$?
-  if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$datnext/ST2ml${datnext}${h1}.Grb.gz $GESOUTccpa
-    ESCAPE_03h_06=NO
-  fi
   done
 
    ESCAPE_03h_12=YES
@@ -191,12 +167,6 @@ else
   scm=$?
   if (( $scm > 0 )); then 
     cp -p $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz $GESOUTccpa
-    ESCAPE_03h_12=NO
-  fi
-  cmp $GESOUTccpa/ST2ml${datnext}${h1}.Grb.gz $COMINpcpanl.$datnext/ST2ml${datnext}${h1}.Grb.gz
-  scm=$?
-  if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$datnext/ST2ml${datnext}${h1}.Grb.gz $GESOUTccpa
     ESCAPE_03h_12=NO
   fi
   done 
@@ -359,7 +329,7 @@ fi
 #----------------------------------------------------------
 #Copygb the output files to various resolution
 #----------------------------------------------------------
- for res in 1p0 0p5 0p125 ndgd5p0 ndgd2p5
+ for res in 1p0 0p5 0p125 ndgd5p0 
  do 
   $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}.${curdate}12.06h
   $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}.${curdate}12.12h
@@ -399,18 +369,26 @@ du -g
    fi
    if [ "$SENDCOM" = "YES" ]; then 
   mv  ST4_ADJ_${grid}.${curdate}12.${hh}h.grb         $OUTDIR/ccpa.t${tt}z.06h.${grid}.conus
-  for res in ndgd5p0 ndgd2p5 1p0 0p5 0p125
+  for res in ndgd5p0 1p0 0p5 0p125
   do
   mv  ST4_ADJ_${grid}.${curdate}12.${hh}h_${res}.grb    $OUTDIR/ccpa.t${tt}z.06h.${res}.conus 
   done
  
- $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${tt}z.06h.${grid}.conus $OUTDIR/ccpa.t${tt}z.06h.${grid}.conus.gb2
- for res in ndgd5p0 ndgd2p5 1p0 0p5 0p125
+  $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${tt}z.06h.${grid}.conus $OUTDIR/ccpa.t${tt}z.06h.${grid}.conus.gb2
+ for res in ndgd5p0 1p0 0p5 0p125
  do 
- $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${tt}z.06h.${res}.conus $OUTDIR/ccpa.t${tt}z.06h.${res}.conus.gb2
+  $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${tt}z.06h.${res}.conus $OUTDIR/ccpa.t${tt}z.06h.${res}.conus.gb2
 
  done 
    fi
+
+  GRID="lambert:265.0000:25.0000:25.0000:25.0000 233.7234:2345:2539.7030 19.2290:1597:2539.7030"
+  INTERP="budget"
+  PACKING="same"
+  res=ndgd2p5
+
+  $WGRIB2 $OUTDIR/ccpa.t${tt}z.06h.${grid}.conus.gb2 -set_grib_type $PACKING -new_grid_interpolation $INTERP -new_grid $GRID $OUTDIR/ccpa.t${tt}z.06h.${res}.conus.gb2
+  $CNVGRIB -g21 $OUTDIR/ccpa.t${tt}z.06h.${res}.conus.gb2 $OUTDIR/ccpa.t${tt}z.06h.${res}.conus
 
    if [ "$SENDDBN" = 'YES' ]; then
      for res in ${grid} ndgd5p0 ndgd2p5 1p0 0p5 0p125
@@ -469,7 +447,7 @@ du -g
 #----------------------------------------------------------
 #Copygb the output files to various resolution
 #----------------------------------------------------------
- for res in 1p0 0p5 0p125 ndgd5p0 ndgd2p5
+ for res in 1p0 0p5 0p125 ndgd5p0
  do 
   $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}_t${h3}z_03h
   $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}_t${h6}z_03h
@@ -486,7 +464,7 @@ du -g
    if [ "$SENDCOM" = "YES" ]; then
   mv  ST4_ADJ_${grid}_t${h3}z_03h.grb $OUTDIR/ccpa.t${h3}z.03h.${grid}.conus
   mv  ST4_ADJ_${grid}_t${h6}z_03h.grb $OUTDIR/ccpa.t${h6}z.03h.${grid}.conus
-  for res in ndgd5p0 ndgd2p5 1p0 0p5 0p125 
+  for res in ndgd5p0 1p0 0p5 0p125 
   do
   mv  ST4_ADJ_${grid}_t${h3}z_03h_${res}.grb $OUTDIR/ccpa.t${h3}z.03h.${res}.conus
   mv  ST4_ADJ_${grid}_t${h6}z_03h_${res}.grb $OUTDIR/ccpa.t${h6}z.03h.${res}.conus
@@ -495,12 +473,22 @@ du -g
  $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${h3}z.03h.${grid}.conus $OUTDIR/ccpa.t${h3}z.03h.${grid}.conus.gb2
  $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${h6}z.03h.${grid}.conus $OUTDIR/ccpa.t${h6}z.03h.${grid}.conus.gb2
 
-  for res in ndgd5p0 ndgd2p5 1p0 0p5 0p125
+  for res in ndgd5p0 1p0 0p5 0p125
   do 
  $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${h3}z.03h.${res}.conus $OUTDIR/ccpa.t${h3}z.03h.${res}.conus.gb2
  $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${h6}z.03h.${res}.conus $OUTDIR/ccpa.t${h6}z.03h.${res}.conus.gb2
  done
    fi
+
+  GRID="lambert:265.0000:25.0000:25.0000:25.0000 233.7234:2345:2539.7030 19.2290:1597:2539.7030"
+  INTERP="budget"
+  PACKING="same"
+  res=ndgd2p5
+
+  $WGRIB2 $OUTDIR/ccpa.t${h3}z.03h.${grid}.conus.gb2 -set_grib_type $PACKING -new_grid_interpolation $INTERP -new_grid $GRID $OUTDIR/ccpa.t${h3}z.03h.${res}.conus.gb2
+  $WGRIB2 $OUTDIR/ccpa.t${h6}z.03h.${grid}.conus.gb2 -set_grib_type $PACKING -new_grid_interpolation $INTERP -new_grid $GRID $OUTDIR/ccpa.t${h6}z.03h.${res}.conus.gb2
+  $CNVGRIB -g21 $OUTDIR/ccpa.t${h3}z.03h.${res}.conus.gb2 $OUTDIR/ccpa.t${h3}z.03h.${res}.conus
+  $CNVGRIB -g21 $OUTDIR/ccpa.t${h6}z.03h.${res}.conus.gb2 $OUTDIR/ccpa.t${h6}z.03h.${res}.conus
 
    if [ "$SENDDBN" = 'YES' ]; then
     for res in ${grid} ndgd5p0 ndgd2p5 1p0 0p5 0p125
@@ -572,7 +560,7 @@ du -g
  (( Num=Num+1 ))
   cp -p rfc_adjusted_1hr.${Num}.grb ST4_ADJ_${grid}_t${hrly}z_01h.grb
 
- for res in 1p0 0p5 0p125 ndgd5p0 ndgd2p5
+ for res in 1p0 0p5 0p125 ndgd5p0
  do
   $USHccpa/ccpa_copygb_pcp.sh $interp $res ST4_ADJ_${grid}_t${hrly}z_01h
  done
@@ -593,13 +581,24 @@ du -g
   mv  ST4_ADJ_${grid}_t${hrly}z_01h.grb $OUTDIR/ccpa.t${hrly}z.01h.${grid}.conus
   $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${hrly}z.01h.${grid}.conus $OUTDIR/ccpa.t${hrly}z.01h.${grid}.conus.gb2
 
-  for res in ndgd5p0 ndgd2p5 1p0 0p5 0p125
+  for res in ndgd5p0 1p0 0p5 0p125
   do
    mv  ST4_ADJ_${grid}_t${hrly}z_01h_${res}.grb $OUTDIR/ccpa.t${hrly}z.01h.${res}.conus
    $CNVGRIB -g12 -p40 $OUTDIR/ccpa.t${hrly}z.01h.${res}.conus $OUTDIR/ccpa.t${hrly}z.01h.${res}.conus.gb2
   done
  done 
    fi
+
+  GRID="lambert:265.0000:25.0000:25.0000:25.0000 233.7234:2345:2539.7030 19.2290:1597:2539.7030"
+  INTERP="budget"
+  PACKING="same"
+  res=ndgd2p5
+
+ for hrly in $hrlist
+ do
+  $WGRIB2 $OUTDIR/ccpa.t${hrly}z.01h.${grid}.conus.gb2 -set_grib_type $PACKING -new_grid_interpolation $INTERP -new_grid $GRID $OUTDIR/ccpa.t${hrly}z.01h.${res}.conus.gb2
+  $CNVGRIB -g21 $OUTDIR/ccpa.t${hrly}z.01h.${res}.conus.gb2 $OUTDIR/ccpa.t${hrly}z.01h.${res}.conus
+ done
 
    if [ "$SENDDBN" = 'YES' ]; then
     for res in ${grid} ndgd5p0 ndgd2p5 1p0 0p5 0p125

@@ -1,7 +1,8 @@
 TITLE: 
-CCPA upgrade (v4.0.1)
+CCPA upgrade (v4.0.2)
  
 - Update of regression coefficients 
+- Change of 3-hourly CCPA for improved quality of Stage IV hourly in NWRFC and CNRFC
 - Addition of 1-hourly analysis
 
 CHANGE REQUEST CLASS: 
@@ -10,8 +11,9 @@ Major change
 DESCRIPTION OF CHANGE:  
 
 CCPA upgrade will update the regression coefficients with extended historical training data sets from
-2002 to 2017; add 1 hourly analysis. This package works well prior to the RTMA/URMA v2.6 (pcpanl v3.0.0)
-implementation on 12/13/2017.
+2002 to 2017; Change the computation of weights used in downscaling from 6-hourly CCPA to 3-hourly CCPA
+by using Stage IV hourly data only over CONUS including NWRFC and CNRFC where these areas have improved 
+quality  in recent implementation of the RTMA/URMA v2.6 upgrade on 12/13/2017; add 1 hourly analysis.
  
 Required changes in the following files:
 
@@ -19,7 +21,7 @@ Required changes in the following files:
    - Removed and replaced with other three files in 2)
 
   2) ecf/ccpa_test.def&jccpa_conus.ecf&jccpa_gempak.ecf
-   - Adopted from NCO and modified to increase computor nodes from 1 to 5 
+   - Added and modified to increase computor nodes from 1 to 5 
 
   3) jobs/JCCPA_CONUS
    - Modified to change the CCPA running order
@@ -27,34 +29,34 @@ Required changes in the following files:
 
   4) scripts/exccpa_conus.sh.ecf
    - Modified to add 1-hourly analysis products
+   - Modified to change 2.5km ndgd grid as MDL/NBM specified
 
   5) ush/ccpa_6h_to_3h.sh
    - Modified slightly for data input path
+   - Modified to use Stage IV hourly data only
 
   6) ush/ccpa_6h_to_1h.sh
-   - Added to produce 1-hourly analysis products 
+   - Added to produce 1-hourly analysis products using Stage IV hourly data only 
 
   7) ush/ccpa_copygb_pcp.sh
    - Modified to change 0.5 degree analysis products
 
-  8) ush/ccpa_rfcqpe_adjust.sh
-   - Modified slightly for data input path
+  8) sorc/Module_CCPA_v4.0.0
+   - Added to replace sorc/Module_CCPA_v3.0.0 for consistency
 
-  9) sorc/Module_CCPA_v4.0.0
-   - Replaced with sorc/Module_CCPA_v3.0.0 for consistency
-
-  10) sorc/ccpa_comp_st4_st2_1h_files.fd
-   - Added to produce 1-hourly composites
+  9) sorc/ccpa_comp_st4_st2_3h_files.fd
+   - Removed to use Stage IV hourly data only
     
-  11 sorc/ccpa_6h_to_1h.fd 
-   - Added to produce 1-hourly analysis products using 9)
+  10 sorc/ccpa_6h_to_1h.fd 
+   - Added to produce 1-hourly analysis products using Stage IV hourly data only
 
-  12) fix/CCPA_CONUS_reg_coef_8thd
+  11) fix/CCPA_CONUS_reg_coef_8thd
    - Modified to replace with a new set of regression coefficients
 
 BENEFIT OF CHANGE: 
 
-By updating regression coefficients with extended training data sets, this upgrade will improve analysis quality. 
+By updating regression coefficients with extended training data sets, this upgrade will improve analysis quality.
+Using improved Stage IV hourly in NWRFC and CNRFC will obtain better weights and thus improve 3-hourly analysis. 
 Adding 1-hourly CCPA will support MDL's National Blend of Model (NBM) project. 
 
 USER IMPACT STATEMENT:
