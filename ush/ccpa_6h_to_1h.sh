@@ -5,6 +5,7 @@ echo $#
 ############################################################
 #HISTORY:
 #09/18/2017: Initial script created by Yan Luo
+#09/26/2017: Script modified by Yan Luo for using Stage IV hourly data only 
 ############################################################
 #----------------------------------------------------------
 # Begginning date and ending hour
@@ -33,7 +34,6 @@ mm=` echo $ymd | cut -c5-6 `
 dd=` echo $ymd | cut -c7-8 ` 
 
 ccpa_6hr=$COMOUT.$datedir/$hour
-mask_dir=$HOMEccpa/fix
 
 temp_dir=$DATA/ccpa_${datedir}${hour}_01h
 if [ -s $temp_dir ]; then
@@ -46,15 +46,13 @@ fi
 
 cd $temp_dir
 
-if [ -s $temp_dir/CCPA_CONUS_rfc_mask_hrap.grb ]; then
- echo CCPA_CONUS_rfc_mask_hrap.grb already exists!
-else
-cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.grb
- echo CCPA_CONUS_rfc_mask_hrap.grb is copied!
-fi
+#------------------------------------------------------
+# Fetch 1-hourly Stage IV RFC precip file
+#
+
    Num=0
-   for HH in ${h0_6} 
-   do
+  for HH in ${h0_6} 
+  do
    (( Num=Num+1 ))
    if [ $HH == 00 ]; then
    ymd=$datnext
@@ -63,51 +61,19 @@ fi
    dd=` echo $ymd | cut -c7-8 `
    fi
 
-   if [ -s $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
-    cp -p  $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
-    gunzip $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz
-    cp -p  $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb rfc2_01h.grb
-   else
-    echo $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning
-    exit
-   fi
-
    if [ -s $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
     cp -p  $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
     gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
-    cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc4_01h.grb
+    cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_orig_${Num}.grb   #1
    else
     echo $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning
     exit
    fi
-
-#------------------------------------------------------
-# Combine hourly Stage IV RFC precip with hourly Stage II RFC precip
-#
-# Sum of Stage II and Stage IV precip (Fortran)
-
-   if [ $HH == 00 ]; then
-   ymd=$curdate
-   yyyy=` echo $ymd | cut -c1-4 `
-   mm=` echo $ymd | cut -c5-6 `
-   dd=` echo $ymd | cut -c7-8 `
-   fi
-
-    $EXECccpa/ccpa_comp_st4_st2_1h_files $yyyy $mm $dd $HH                #1
-    if eval test -s rfc_1h.grb 
-    then
-    mv rfc_1h.grb  rfc_orig_${Num}.grb
-     echo Combine hourly Stage II and hourly Stage IV precip, DONE!
-    else
-     echo file Composite of Stage II and Stage IV failed!!!!
-     echo The program will be terminated!!!! 
-     export err=9; err_chk
-    fi
-   done
+  done
 
 #------------------------------------------------------
 # Disaggregate 6-hourly CCPA into hourly based on hourly
-# Stage II+IV Composite accumulation ratios 
+# Stage IV accumulation ratios 
 #
 # Split  6-hourly CCPA into hourly CCPA (Fortran)
 

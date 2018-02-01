@@ -4,7 +4,7 @@ PROGRAM p6hourly_to_1hourly
 !01/04/2010: Program (CCPA_daily_to_6h.f90) created by Mike Charles in 2008
 !03/24/2010: Program (CCPA_daily_to_6h.f90) modified by Dingchen Hou for CCPA initial implementation
 !02/18/2011: Program originated from CCPA_daily_to_6h.f90, adopted and modified by Yan Luo
-             for 3 hourly CCPA
+!            for 3 hourly CCPA
 !09/18/2017: Program added by Yan Luo for 1 hourly CCPA 
 !###########################################################
 

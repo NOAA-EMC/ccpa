@@ -16,6 +16,8 @@
 # EXPORT list here
 export cyc=12 #cyc=12 for both /prod00 and /prod12
 
+module load prod_util
+
 ##############################################
 # COPYSRC - switch for re-copying source files of STAGE IV data files
 #   YES  =   do the re-copy anyway
