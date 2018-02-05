@@ -57,4 +57,4 @@ jobs/JCCPA_GEMPAK is triggered by completion of the JCCPA_CONUS job.
        e.g., ccpa.t06z.01h.ndgd5p0.conus.gb2
    (6) 2.5km ndgd grid
        e.g., ccpa.t06z.01h.ndgd2p5.conus.gb2
-       The 2.5km ndgd grid was modified to have the same grids specifications for the MDL's Blend 2.5km CONUS grid.
+       The 2.5km ndgd grid was modified to have the same grid specifications for the MDL's Blend 2.5km CONUS grid.

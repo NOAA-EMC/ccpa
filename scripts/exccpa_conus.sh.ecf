@@ -7,7 +7,7 @@
 # This script extends CCPA to include 2.5 km NDGD output grids
 ###### 01/16/2018 #######################################################
 # This script extends CCPA to include 1-hourly precipitation analysis
-# This script removes Stage II hourly data as input
+# This script removes Stage II hourly from data inout
 # This script modifies the 2.5km ndgd grid as the MDL/NBM specified
 #########################################################################
 
