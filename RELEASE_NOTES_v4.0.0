@@ -17,40 +17,38 @@ quality  in recent implementation of the RTMA/URMA v2.6 upgrade on 12/13/2017; a
  
 Required changes in the following files:
 
-  1) ecf/jccpa_conus_00.ecf&jccpa_conus_12.ecf
-   - Removed and replaced with other three files in 2)
+  1) ecf/ccpa_test.def&jccpa_conus.ecf&jccpa_gempak.ecf
+   - Adopted from NCO version
+   - Modified jccpa_conus.ecf to increase cpu requirement from 1 node 1 task to 1 node 5 tasks 
 
-  2) ecf/ccpa_test.def&jccpa_conus.ecf&jccpa_gempak.ecf
-   - Added and modified to increase computer nodes from 1 to 5 
-
-  3) jobs/JCCPA_CONUS
+  2) jobs/JCCPA_CONUS
    - Modified to change the CCPA running order
-   - Modified to change job runs from serial to 5 parallels
+   - Modified to change cpu requirement from 1 node 1 task to 1 node 5 tasks
 
-  4) scripts/exccpa_conus.sh.ecf
+  3) scripts/exccpa_conus.sh.ecf
    - Modified to add 1-hourly analysis products
    - Modified to change 2.5km ndgd grid as MDL/NBM specified
 
-  5) ush/ccpa_6h_to_3h.sh
+  4) ush/ccpa_6h_to_3h.sh
    - Modified slightly for data input path
    - Modified to use Stage IV hourly data only
 
-  6) ush/ccpa_6h_to_1h.sh
-   - Added to produce 1-hourly analysis products using Stage IV hourly data only 
+  5) ush/ccpa_6h_to_1h.sh
+   - Added to generate 1-hourly analysis products using Stage IV hourly data only 
 
-  7) ush/ccpa_copygb_pcp.sh
+  6) ush/ccpa_copygb_pcp.sh
    - Modified to change 0.5 degree analysis products
 
-  8) sorc/Module_CCPA_v4.0.0
+  7) sorc/Module_CCPA_v4.0.0
    - Added to replace sorc/Module_CCPA_v3.0.0 for consistency
 
-  9) sorc/ccpa_comp_st4_st2_3h_files.fd
+  8) sorc/ccpa_comp_st4_st2_3h_files.fd
    - Removed to use Stage IV hourly data only
     
-  10 sorc/ccpa_6h_to_1h.fd 
-   - Added to produce 1-hourly analysis products using Stage IV hourly data only
+  9) sorc/ccpa_6h_to_1h.fd 
+   - Added to generate 1-hourly analysis products using Stage IV hourly data only
 
-  11) fix/CCPA_CONUS_reg_coef_8thd
+  10) fix/CCPA_CONUS_reg_coef_8thd
    - Modified to replace with a new set of regression coefficients
 
 BENEFIT OF CHANGE: 
