@@ -33,7 +33,7 @@ jobs/JCCPA_GEMPAK is triggered by completion of the JCCPA_CONUS job.
 
    (1) Compute resource information:
 
-       Increase cpu requirement from 1 node 1 task to 1 task 5 nodes. Run time remains about the same for 20-25 minutes.  
+       Increase cpu requirement from 1 node 1 task to 1 node 5 tasks. Run time remains about the same for 20-25 minutes.  
 
    (2) Disk space
          
