@@ -5,6 +5,7 @@ echo $#
 ############################################################
 #HISTORY:
 #02/18/2011: Initial script created by Yan Luo
+#09/26/2017: Script modified by Yan Luo for using Stage IV hourly data only
 ############################################################
 #----------------------------------------------------------
 # Begginning date and ending hour
@@ -32,13 +33,7 @@ yyyy=` echo $ymd | cut -c1-4 `
 mm=` echo $ymd | cut -c5-6 ` 
 dd=` echo $ymd | cut -c7-8 ` 
 
-#------------------------------------------------------
-# Accumulate 1-hourly Stage II RFC precip into 3-hourly
-#
-# Accumulate precip (Fortran)
-   echo Accumulating precip over 3 hours...
 ccpa_6hr=$COMOUT.$datedir/$hour
-mask_dir=$HOMEccpa/fix
 
 temp_dir=$DATA/ccpa_${datedir}${hour}_03h
 if [ -s $temp_dir ]; then
@@ -50,35 +45,9 @@ fi
 
 cd $temp_dir
 
-cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.grb
-
-   Num=0
-   for HH in $h0_3 
-   do
-   if [ -s $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
-   (( Num=Num+1 ))
-    cp -p  $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
-    gunzip $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz
-    cp -p  $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb rfc_01h_${Num}.grb
-   else
-    echo $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
-    exit
-   fi 
-   done
-   $EXECccpa/ccpa_accum_1h_files $yyyy $mm $dd $t1                #1a
-  if eval test -s rfc_3h.grb 
-  then
-  mv rfc_3h.grb  rfc2_03h.grb
-   echo Accumulating precip over 3 hours, DONE!
-  else
-   echo file accumulation failed!!!!
-   echo The program will be terminated!!!! 
-   export err=9; export err; err_chk
-  fi
-
-#------------------------------------------------------
-# Accumulate 1-hourly Stage IV RFC precip into 3-hourly
-#
+#--------------------------------------------------------
+# Accumulate the first three 1-hourly Stage IV RFC precip
+# into 3-hourly
 # Accumulate precip (Fortran)
    echo Accumulating precip over 3 hours...
    Num=0
@@ -94,64 +63,10 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
     exit
    fi 
    done
-   $EXECccpa/ccpa_accum_1h_files $yyyy $mm $dd $t1                #1b
-  if eval test -s rfc_3h.grb 
-  then
-  mv rfc_3h.grb  rfc4_03h.grb
-   echo Accumulating precip over 3 hours, DONE!
-  else
-   echo file accumulation failed!!!!
-   echo The program will be terminated!!!! 
-   export err=9; err_chk
-  fi
-
-#------------------------------------------------------
-# Combine 3-hourly Stage IV RFC precip with 3-hourly Stage II RFC precip
-#
-# Sum of Stage II and Stage IV precip (Fortran)
-   $EXECccpa/ccpa_comp_st4_st2_3h_files $yyyy $mm $dd $t1                #2
+   $EXECccpa/ccpa_accum_1h_files $yyyy $mm $dd $t1                #1a
   if eval test -s rfc_3h.grb 
   then
   mv rfc_3h.grb  rfc_orig_1.grb
-   echo Combine Stage II and Stage IV precip over 3 hours, DONE!
-  else
-   echo file Composite of Stage II and Stage IV failed!!!!
-   echo The program will be terminated!!!! 
-   export err=9; err_chk
-  fi
-
-  mv rfc4_03h.grb rfc4_03h.1.grb
-  mv rfc2_03h.grb rfc2_03h.1.grb
-
-   Num=0
-   for HH in $h3_6 
-   do
-  if [ $HH == 00 ]; then
-    if [ -s $COMINpcpanl.$datnext/ST2ml${datnext}${HH}.Grb.gz ]; then
-    (( Num=Num+1 ))
-     cp -p  $COMINpcpanl.$datnext/ST2ml${datnext}${HH}.Grb.gz $temp_dir
-     gunzip $temp_dir/ST2ml${datnext}${HH}.Grb.gz
-     cp -p  $temp_dir/ST2ml${datnext}${HH}.Grb rfc_01h_${Num}.grb
-    else
-     echo $COMINpcpanl.$datnext/ST2ml${datnext}${HH}.Grb.gz does not exist  >>$DATA/warning 
-     exit
-    fi 
-  else
-    if [ -s $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz ]; then
-    (( Num=Num+1 ))
-     cp -p  $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz $temp_dir
-     gunzip $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz
-     cp -p  $temp_dir/ST2ml${yyyy}${mm}${dd}${HH}.Grb rfc_01h_${Num}.grb
-    else
-     echo $COMINpcpanl.$yyyy$mm$dd/ST2ml${yyyy}${mm}${dd}${HH}.Grb.gz does not exist  >>$DATA/warning 
-     exit
-    fi 
-  fi
-   done
-   $EXECccpa/ccpa_accum_1h_files $yyyy $mm $dd $t2                #3a
-  if eval test -s rfc_3h.grb 
-  then
-  mv rfc_3h.grb  rfc2_03h.grb
    echo Accumulating precip over 3 hours, DONE!
   else
    echo file accumulation failed!!!!
@@ -159,9 +74,9 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
    export err=9; err_chk
   fi
 
-#------------------------------------------------------
-# Accumulate 1-hourly Stage IV RFC precip into 3-hourly
-#
+#---------------------------------------------------------
+# Accumulate the second three 1-hourly Stage IV RFC precip
+# into 3-hourly
 # Accumulate precip (Fortran)
    echo Accumulating precip over 3 hours...
    Num=0
@@ -189,10 +104,10 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
     fi 
   fi
    done
-   $EXECccpa/ccpa_accum_1h_files $yyyy $mm $dd $t2                #3b
+   $EXECccpa/ccpa_accum_1h_files $yyyy $mm $dd $t2                #1b
   if eval test -s rfc_3h.grb 
   then
-  mv rfc_3h.grb  rfc4_03h.grb
+  mv rfc_3h.grb  rfc_orig_2.grb
    echo Accumulating precip over 3 hours, DONE!
   else
    echo file accumulation failed!!!!
@@ -201,33 +116,15 @@ cp -p $mask_dir/CCPA_CONUS_rfc_mask_hrap.grb $temp_dir/CCPA_CONUS_rfc_mask_hrap.
   fi
 
 #------------------------------------------------------
-# Combine 3-hourly Stage IV RFC precip with 3-hourly Stage II RFC precip
-#
-# Sum of Stage II and Stage IV precip (Fortran)
-   $EXECccpa/ccpa_comp_st4_st2_3h_files $yyyy $mm $dd $t2                #4
-  if eval test -s rfc_3h.grb 
-  then
-  mv rfc_3h.grb   rfc_orig_2.grb
-   echo Combine Stage II and Stage IV precip over 3 hours, DONE!
-  else
-   echo file Composite of Stage II and Stage IV failed!!!!
-   echo The program will be terminated!!!! 
-   export err=9; err_chk
-  fi
-
-  mv rfc4_03h.grb rfc4_03h.2.grb
-  mv rfc2_03h.grb rfc2_03h.2.grb
-
-#------------------------------------------------------
 # Disaggregate 6-hourly CCPA into 3 hourly based on 3-hourly
-# Stage II+IV Composite accumulation ratios 
+# Stage IV accumulation ratios 
 #
 # Split  6-hourly CCPA into 3-hourly CCPA (Fortran)
 
   if eval test -s $ccpa_6hr/ccpa.t${hour}z.06h.hrap.conus
   then
   cp $ccpa_6hr/ccpa.t${hour}z.06h.hrap.conus $temp_dir/rfc_scaled_downscaled.grb
-  echo Disaggregating into 3-hourly amounts...                         #5     
+  echo Disaggregating into 3-hourly amounts...                         #2     
   $EXECccpa/ccpa_6h_to_3h ${ymd}${t1}0003 ${ymd}${t2}0003  >> $pgmout 2>errfile             
   export err=$?; err_chk
   echo Disaggregation done

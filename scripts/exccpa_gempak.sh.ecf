@@ -74,15 +74,17 @@ fi
 
    esac
 
-    GEMGRD="${COMOUT}/ccpa_conus_${filin}_${fullddate_a}12"
+    GEMGRD="ccpa_conus_${filin}_${fullddate_a}12"
  
    for cyc in 18 00 06 12
    do
     
      if [ "${cyc}" = "18" ]; then 
-      GRIBIN="${COMIN}/ccpa.${fullddate_a}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
+      cp ${COMIN}/ccpa.${fullddate_a}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2 ccpa.${fullddate_a}.t${cyc}z.06h.${filin}.conus.gb2
+      GRIBIN="ccpa.${fullddate_a}.t${cyc}z.06h.${filin}.conus.gb2"      
      else
-      GRIBIN="${COMIN}/ccpa.${fullddate_b}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2"      
+      cp ${COMIN}/ccpa.${fullddate_b}/${cyc}/ccpa.t${cyc}z.06h.${filin}.conus.gb2 ccpa.${fullddate_b}.t${cyc}z.06h.${filin}.conus.gb2
+      GRIBIN="ccpa.${fullddate_b}.t${cyc}z.06h.${filin}.conus.gb2"      
      fi
 
 $NAGRIB << EOF
@@ -107,9 +109,12 @@ EOF
   
 gpend
 
-   if [ -s $GEMGRD -a "$SENDDBN" = "YES" ]; then
-     $DBNROOT/bin/dbn_alert MODEL $DBN_ALERT_TYPE $job $GEMGRD
+   cp ${GEMGRD} ${COMOUT}/
+
+   if [ -s ${COMOUT}/${GEMGRD} -a "$SENDDBN" = "YES" ]; then
+     $DBNROOT/bin/dbn_alert MODEL $DBN_ALERT_TYPE $job ${COMOUT}/${GEMGRD}
    fi
+  
   done
 
  done

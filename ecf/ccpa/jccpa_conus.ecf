@@ -1,17 +1,24 @@
+#!/bin/bash
 #BSUB -J %E%ccpa_conus_%CYC%
-#BSUB -a poe
-#BSUB -o /com2/output/%ENVIR%/today/ccpa_conus_%CYC%.o%J
-#BSUB -L /bin/sh
+#BSUB -o /gpfs/dell1/nco/ops/com/output/%ENVIR%/today/ccpa_conus_%CYC%.o%J
 #BSUB -q %QUEUE%_shared
-#BSUB -n 5
-#BSUB -cwd /tmpnwprd_p2
+#BSUB -cwd /gpfs/dell1/nco/ops/tmpnwprd
 #BSUB -W 00:40
-#BSUB -R span[ptile=5]
-#BSUB -R affinity[core]
+#BSUB -n 5
+#BSUB -R "span[ptile=5]"
+#BSUB -M 5000
+#BSUB -R "affinity[core(1):distribute=balance]"
 #BSUB -P %PROJ%-%PROJENVIR%
 
 %include <head.h>
 %include <envir-p2.h>
+
+module load prod_envir/1.0.2
+module load grib_util/1.0.6
+module load prod_util/1.1.0
+module load lsf/10.1
+module load EnvVars/1.0.2
+module load CFP/2.0.1
 
 # EXPORT list here
 export cyc=12 #cyc=12 for both /prod00 and /prod12

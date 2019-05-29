@@ -1,9 +1,6 @@
 #!/bin/bash
 
 set -xa
-export MP_IOAGENT_CNT=all
-export MP_IO_BUFFER_SIZE=8M
-
 export PS4='$SECONDS + '
 date
 
@@ -86,8 +83,7 @@ export FIXccpa=${FIXccpa:-$HOMEccpa/fix}
 export coeff_dir=$FIXccpa/CCPA_CONUS_reg_coef_8thd 
 export mask_fil=$FIXccpa/CCPA_CONUS_cpc_mask_8thd.bin
 
-module use /nwprod2/modulefiles
-module load grib_util/v1.0.1
+module load grib_util/1.0.6
 
 ##############################
 # Run setpdy and initialize PDY variables
@@ -138,11 +134,13 @@ fi
 mkdir -p $work_dir
 cd $work_dir
 
+  flagNum="day${day}"
   echo  Re-Run $day2 job -----  processing 24h precip ending at 12Z $day2
 
-  echo "$HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2 $work_dir" >>$DATA/poescript
+  # JY echo "$HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2 $work_dir" >>$DATA/poescript
+  echo "$HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2 $work_dir $flagNum" >>$DATA/poescript
 
-  ecflow_client --event release_gempak
+  # JY ecflow_client --event release_gempak
 
 cd $DATA
 
@@ -155,16 +153,13 @@ done
 chmod 775 $DATA/poescript
 
 export MP_CMDFILE=$DATA/poescript
-export MP_EUIDEVICE=sn_all
-export MP_EUILIB=us
 export MP_PGMMODEL=mpmd
-export MP_TASK_AFFINITY=cpu
 
 ####################
 # Execute the script 
 ####################
 
-mpirun.lsf -cmdfile $DATA/poescript -pgmmodel mpmd -ilevel 3 -labelio yes -stdoutmode ordered
+mpirun -l cfp ${MP_CMDFILE}
 export err=$?; err_chk
 
 echo `hostname`
