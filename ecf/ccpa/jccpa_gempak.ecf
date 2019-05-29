@@ -1,15 +1,25 @@
+#!/bin/bash
 #BSUB -J %E%ccpa_gempak_%CYC%
-#BSUB -o /com2/output/%ENVIR%/today/ccpa_gempak_%CYC%.o%J
-#BSUB -cwd /tmpnwprd_p2
+#BSUB -o /gpfs/dell1/nco/ops/com/output/%ENVIR%/today/ccpa_gempak_%CYC%.o%J
+#BSUB -cwd /gpfs/dell1/nco/ops/tmpnwprd
 #BSUB -q %QUEUE%_shared
 #BSUB -W 00:35
-#BSUB -L /bin/sh
 #BSUB -P %PROJ%-%PROJENVIR%
-#BSUB -R rusage[mem=2000]
+#BSUB -M 2000
 #BSUB -R affinity[core]
 
 %include <head.h>
 %include <envir-p2.h>
+
+module load prod_envir/1.0.2
+module load grib_util/1.0.6
+module load prod_util/1.1.0
+module load lsf/10.1
+module load EnvVars/1.0.2
+module load CFP/2.0.1
+
+module use -a /gpfs/dell1/nco/ops/nwprod/modulefiles/
+module load gempak/7.3.1
 
 # EXPORT list here
 export cyc=%CYC%

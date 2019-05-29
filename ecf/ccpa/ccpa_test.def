@@ -3,7 +3,7 @@ suite test
     edit CYC 12
     edit PROJ 'GEN'
     edit QUEUE 'preprod2'
-    edit COMPATH '/com2/pcpanl/para'
+    edit COMPATH '/gpfs/dell1/nco/ops/com/pcpanl/para'
     task jccpa_conus
       event 1 release_gempak
       time 16:10

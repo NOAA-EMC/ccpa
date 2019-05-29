@@ -38,7 +38,7 @@ export HOMEccpa=${HOMEccpa:-$NWROOT/ccpa.${ccpa_ver}}
 #
 # Now set up GEMPAK/NTRANS environment
 #
-. /nwprod/gempak/.gempak
+#. /nwprod/gempak/.gempak
 
 ###################################
 # Set up the UTILITIES
@@ -51,7 +51,8 @@ setpdy.sh
 
 export PDYm8=`finddate.sh $PDY d-8`
 export COMIN=${COMIN:-${COMROOT}/${NET}/${envir}}
-export COMOUT=${COMOUT:-${COMROOT}/nawips/${envir}/${RUN}.${PDY}}
+#export COMOUT=${COMOUT:-${COMROOT}/nawips/${envir}/${RUN}.${PDY}}
+export COMOUT=${COMOUT:-${COMROOTp3}/${NET}/${envir}/${RUN}.${PDY}/gempak}
 
 if [ ! -f $COMOUT ] ; then
   mkdir -p -m 775 $COMOUT

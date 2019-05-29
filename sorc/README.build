@@ -1,12 +1,12 @@
-Library are defined in Module_CCPA_v4.0.0
+Library are defined in:
+ Module_CCPA_v4.0.0----for wcoss
+ Module_CCPA_v4.0.1---- for DELL
 
 To build codes:
 
-    cd /XXXX/ccpa.v4.0.0/sorc
-     1) bash
-     2) module purge
-     3) module use .
-     4) module load Module_CCPA_v4.0.0        
-     5) ./build.sh
-     6) ./install.sh
+    cd /XXXX/sorc
+     1) module use .
+     2) module load Module_CCPA_v4.0.1        
+     3) ./build.sh
+     4) ./install.sh
 

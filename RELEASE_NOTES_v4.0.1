@@ -1,0 +1,47 @@
+TITLE:
+CCPA Transition to Dell (v4.0.1)
+ 
+- Update of modules, libraries, LSF jobs, etc 
+- Rebuild of all the executables
+- Modifications to the source and output files 
+
+CHANGE REQUEST CLASS: 
+Minor change 
+
+DESCRIPTION OF CHANGE:  
+
+With the upcoming decommission of WCOSS Phase 1 and Phase 2 (Tide & Gyre) by the end of year 2019,
+CCPA need to be transferred to the Dell Machines.
+ 
+Required changes in the following files:
+
+  1) ecf/ccpa/ccpa_test.def&jccpa_conus.ecf&jccpa_gempak.ecf
+   - Adopted from NCO version
+   - Modified jccpa_conus.ecf&jccpa_gempak.ecf to load required modules
+
+  2) jobs/JCCPA_CONUS
+   - Modified to change the CCPA mpirun command under Dell environment
+
+  3) jobs/JCCPA_GEMPAK
+   - Modified to write gempak output to $COMROOTp3/$NET/$envir/$RUN.$PDY/gempak
+
+  4) scripts/exccpa_gempak.sh.ecf
+   - Modified to change the gempak input/output pathnames&filenames. gempak/7.3.1 on Dell only allows
+     total length of a filename less than 72 characters. Changes were made to adapt to this limitation.  
+
+
+BENEFIT OF CHANGE: 
+
+USER IMPACT STATEMENT:
+
+TECHNICAL IMPACT STATEMENT:
+
+RISKS:
+
+PROPOSED IMPLEMENTATION
+DATE: 
+TIME:
+
+BUGFIXES
+
+

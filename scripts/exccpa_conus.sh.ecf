@@ -46,6 +46,10 @@ pgmout=output
 export curdate=$1
 export datnext=$2
 export work_dir=$3
+export flag_num=$4
+
+isFlagSet=0
+
 cd $work_dir
 export rfc_dir=$work_dir/dataST4  #to store the input STAGE IV files
 export out_dir=$work_dir/outST4   #to store the output CCPA files
@@ -397,9 +401,21 @@ du -g
      done
    fi
  done
+
+ echo "Complete 06h ccpa data for ${flag_num}, issue gempak flag"
+ ecflow_client --event release_gempak_${flag_num}
+ isFlagSet=1
+
  cd $work_dir
  cd ../
    fi      # for "if [ $ESCAPE == NO ]"
+
+ if [ $isFlagSet -eq 0 ]
+ then
+   echo "ESCAPE=$ESCAPE, so gempak flag is not set for ${flag_num}, Set the gempak event flag!"
+   ecflow_client --event release_gempak_${flag_num}
+ fi
+
 #----------------------------------------------------------
 # Split CCPA 6 hourly analysis into 3 hourly 
 #----------------------------------------------------------
