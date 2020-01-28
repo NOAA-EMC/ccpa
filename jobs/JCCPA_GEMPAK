@@ -35,16 +35,6 @@ export DBN_ALERT_TYPE=CCPA_GEMPAK
 
 export HOMEccpa=${HOMEccpa:-$NWROOT/ccpa.${ccpa_ver}}
 
-#
-# Now set up GEMPAK/NTRANS environment
-#
-#. /nwprod/gempak/.gempak
-
-###################################
-# Set up the UTILITIES
-###################################
-#module load grib_util/v1.0.1
-
 # Run setpdy and initialize PDY variables
 setpdy.sh
 . PDY

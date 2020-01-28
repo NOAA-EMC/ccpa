@@ -1,8 +1,8 @@
-CCPA v4.0.1 Transition Instructions: 
+CCPA v4.1.2 Instructions: 
 
 1. Checkout SVN Tags:
 
-   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v4.0.1
+   https://svnemc.ncep.noaa.gov/projects/ccpa/tags/ccpa.v4.1.2
 
 
 2. Set up the Package
@@ -42,11 +42,9 @@ jobs/JCCPA_GEMPAK is triggered by partial completion of the JCCPA_CONUS job.
    
 4.  No Change to Resources Requirements 
 
-   (1) Compute resource information:
+   (1) No change to compute resource information:
 
-      The cpu requirement is 1 node 5 tasks. Run time decreases to 10-15 minutes. 
-It is about 10 minutes faster than current production on Wcoss Phase 2 due to
-computer resource improvement on Dell.   
+      The cpu requirement is 1 node 5 tasks. Run time is about 10-15 minutes. 
 
    (2) No change to disk space
          

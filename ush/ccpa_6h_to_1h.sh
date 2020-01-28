@@ -6,6 +6,7 @@ echo $#
 #HISTORY:
 #09/18/2017: Initial script created by Yan Luo
 #09/26/2017: Script modified by Yan Luo for using Stage IV hourly data only 
+#01/28/2020: Script modified by Yan Luo for using Stage IV GRIB2 input files
 ############################################################
 #----------------------------------------------------------
 # Begginning date and ending hour
@@ -61,12 +62,12 @@ cd $temp_dir
    dd=` echo $ymd | cut -c7-8 `
    fi
 
-   if [ -s $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
-    cp -p  $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
-    gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
+   if [ -s $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 ]; then
+    cp -p  $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 $temp_dir
+    $CNVGRIB -g21  $temp_dir/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h
     cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_orig_${Num}.grb   #1
    else
-    echo $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning
+    echo $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 does not exist  >>$DATA/warning
     exit
    fi
   done

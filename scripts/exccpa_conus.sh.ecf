@@ -9,6 +9,8 @@
 # This script extends CCPA to include 1-hourly precipitation analysis
 # This script removes Stage II hourly from data input
 # This script modifies the 2.5km ndgd grid as the MDL/NBM specified
+###### 01/28/2020 #######################################################
+# This script modifies to use the Stage IV GRIB2 
 #########################################################################
 
 ############################################################
@@ -19,6 +21,8 @@
 #04/25/2011: Script finalized by Yan Luo for 1st CCPA upgrade
 #07/09/2015: Script finalized by Yan Luo for 2nd CCPA upgrade
 #01/16/2018: Script finalized by Yan Luo for 3rd CCPA upgrade
+#01/28/2020: Script finalized by Yan Luo for CCPA as PCPANL v4.0 downstream
+#            (discontinuing Stage II; Stage IV changing from GRIB1 to GRIB2)
 ############################################################
 
 #!/bin/bash
@@ -75,17 +79,17 @@ coeff_b=$coeff_dir/reg_B_2000$MMDD.bin
 
 if [ $COPYSRC == YES ]; then
 # COPY the STAGE IV source file and do (re-do) the analysis  anyway
-  cp -p $COMINpcpanl.$curdate/ST4.${curdate}18.06h.gz $GESOUTccpa
-  cp -p $COMINpcpanl.$datnext/ST4.${datnext}00.06h.gz $GESOUTccpa
-  cp -p $COMINpcpanl.$datnext/ST4.${datnext}06.06h.gz $GESOUTccpa
-  cp -p $COMINpcpanl.$datnext/ST4.${datnext}12.06h.gz $GESOUTccpa
+  cp -p $COMINpcpanl.$curdate/st4_conus.${curdate}18.06h.grb2 $GESOUTccpa
+  cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}00.06h.grb2 $GESOUTccpa
+  cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}06.06h.grb2 $GESOUTccpa
+  cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}12.06h.grb2 $GESOUTccpa
   for h1 in 13 14 15 16 17 18 19 20 21 22 23
   do
-  cp -p $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz $GESOUTccpa
+  cp -p $COMINpcpanl.$curdate/st4_conus.${curdate}${h1}.01h.grb2 $GESOUTccpa
   done
   for h1 in 00 01 02 03 04 05 06 07 08 09 10 11 12
   do
-  cp -p $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz $GESOUTccpa
+  cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}${h1}.01h.grb2 $GESOUTccpa
   done
   ESCAPE=NO
   ESCAPE_03h_18=NO
@@ -97,41 +101,41 @@ else
 # COPY the STAGE IV source file only when it was recently updated
 # IF No file was recently updated, the analysis will aborted (ESCAPE=YES)
   ESCAPE=YES
-  cmp $GESOUTccpa/ST4.${curdate}18.06h.gz $COMINpcpanl.$curdate/ST4.${curdate}18.06h.gz
+  cmp $GESOUTccpa/st4_conus.${curdate}18.06h.grb2 $COMINpcpanl.$curdate/st4_conus.${curdate}18.06h.grb2
   scm=$?
   if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$curdate/ST4.${curdate}18.06h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$curdate/st4_conus.${curdate}18.06h.grb2 $GESOUTccpa
     ESCAPE=NO
   fi
 
-  cmp $GESOUTccpa/ST4.${datnext}00.06h.gz $COMINpcpanl.$datnext/ST4.${datnext}00.06h.gz
+  cmp $GESOUTccpa/st4_conus.${datnext}00.06h.grb2 $COMINpcpanl.$datnext/st4_conus.${datnext}00.06h.grb2
   scm=$?
   if [ $scm -gt 0 ]; then
-    cp -p $COMINpcpanl.$datnext/ST4.${datnext}00.06h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}00.06h.grb2 $GESOUTccpa
     ESCAPE=NO
   fi
 
-  cmp $GESOUTccpa/ST4.${datnext}06.06h.gz $COMINpcpanl.$datnext/ST4.${datnext}06.06h.gz
+  cmp $GESOUTccpa/st4_conus.${datnext}06.06h.grb2 $COMINpcpanl.$datnext/st4_conus.${datnext}06.06h.grb2
   scm=$?
   if [ $scm -gt 0 ]; then
-    cp -p $COMINpcpanl.$datnext/ST4.${datnext}06.06h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}06.06h.grb2 $GESOUTccpa
     ESCAPE=NO
   fi
 
-  cmp $GESOUTccpa/ST4.${datnext}12.06h.gz $COMINpcpanl.$datnext/ST4.${datnext}12.06h.gz
+  cmp $GESOUTccpa/st4_conus.${datnext}12.06h.grb2 $COMINpcpanl.$datnext/st4_conus.${datnext}12.06h.grb2
   scm=$?
   if [ $scm -gt 0 ]; then
-    cp -p $COMINpcpanl.$datnext/ST4.${datnext}12.06h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}12.06h.grb2 $GESOUTccpa
     ESCAPE=NO
   fi
 
   ESCAPE_03h_18=YES
   for h1 in 13 14 15 16 17 18
   do
-  cmp $GESOUTccpa/ST4.${curdate}${h1}.01h.gz $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz
+  cmp $GESOUTccpa/st4_conus.${curdate}${h1}.01h.grb2 $COMINpcpanl.$curdate/st4_conus.${curdate}${h1}.01h.grb2
   scm=$?
   if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$curdate/st4_conus.${curdate}${h1}.01h.grb2 $GESOUTccpa
     ESCAPE_03h_18=NO
   fi
   done
@@ -139,27 +143,27 @@ else
   ESCAPE_03h_00=YES
   for h1 in 19 20 21 22 23
   do
-  cmp $GESOUTccpa/ST4.${curdate}${h1}.01h.gz $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz
+  cmp $GESOUTccpa/st4_conus.${curdate}${h1}.01h.grb2 $COMINpcpanl.$curdate/st4_conus.${curdate}${h1}.01h.grb2
   scm=$?
   if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$curdate/ST4.${curdate}${h1}.01h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$curdate/st4_conus.${curdate}${h1}.01h.grb2 $GESOUTccpa
     ESCAPE_03h_00=NO
   fi
   done
-  cmp $GESOUTccpa/ST4.${datnext}00.01h.gz $COMINpcpanl.$datnext/ST4.${datnext}00.01h.gz
+  cmp $GESOUTccpa/st4_conus.${datnext}00.01h.grb2 $COMINpcpanl.$datnext/st4_conus.${datnext}00.01h.grb2
   scm=$?
   if [ $scm -gt 0 ]; then
-    cp -p $COMINpcpanl.$datnext/ST4.${datnext}00.01h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}00.01h.grb2 $GESOUTccpa
     ESCAPE_03h_00=NO
   fi
 
   ESCAPE_03h_06=YES
   for h1 in 01 02 03 04 05 06 
   do
-  cmp $GESOUTccpa/ST4.${datnext}${h1}.01h.gz $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz
+  cmp $GESOUTccpa/st4_conus.${datnext}${h1}.01h.grb2 $COMINpcpanl.$datnext/st4_conus.${datnext}${h1}.01h.grb2
   scm=$?
   if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}${h1}.01h.grb2 $GESOUTccpa
     ESCAPE_03h_06=NO
   fi
   done
@@ -167,10 +171,10 @@ else
    ESCAPE_03h_12=YES
   for h1 in 07 08 09 10 11 12 
   do
-  cmp $GESOUTccpa/ST4.${datnext}${h1}.01h.gz $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz
+  cmp $GESOUTccpa/st4_conus.${datnext}${h1}.01h.grb2 $COMINpcpanl.$datnext/st4_conus.${datnext}${h1}.01h.grb2
   scm=$?
   if (( $scm > 0 )); then 
-    cp -p $COMINpcpanl.$datnext/ST4.${datnext}${h1}.01h.gz $GESOUTccpa
+    cp -p $COMINpcpanl.$datnext/st4_conus.${datnext}${h1}.01h.grb2 $GESOUTccpa
     ESCAPE_03h_12=NO
   fi
   done 
@@ -182,10 +186,10 @@ fi         # for "if [ $COPYSRC == YES ]"
 # copy rfc data from GESOUTccpa directory  to the work dictory
 #----------------------------------------------------------
 
-for fname in $GESOUTccpa/ST4.${curdate}18.06h.gz \
-             $GESOUTccpa/ST4.${datnext}00.06h.gz \
-             $GESOUTccpa/ST4.${datnext}06.06h.gz \
-             $GESOUTccpa/ST4.${datnext}12.06h.gz 
+for fname in $GESOUTccpa/st4_conus.${curdate}18.06h.grb2 \
+             $GESOUTccpa/st4_conus.${datnext}00.06h.grb2 \
+             $GESOUTccpa/st4_conus.${datnext}06.06h.grb2 \
+             $GESOUTccpa/st4_conus.${datnext}12.06h.grb2 
 do
 
 if [ -s $fname ]; then
@@ -206,19 +210,21 @@ done
 #----------------------------------------------------------
 
 cd $rfc_dir
-for fname in ST4.${curdate}18.06h.gz \
-             ST4.${datnext}00.06h.gz \
-             ST4.${datnext}06.06h.gz \
-             ST4.${datnext}12.06h.gz 
+for fdate in ${curdate}18 \
+             ${datnext}00 \
+             ${datnext}06 \
+             ${datnext}12
 do
 
+fname=st4_conus.${fdate}.06h.grb2
+ 
 if [ -s $fname ]; then
- gunzip $fname 
- echo $fname  is unzipped  !
+ $CNVGRIB -g21 $fname ST4.${fdate}.06h
+ echo $fname  is converted from grib2 to grib1 !
 else
  set +x
  echo FATAL ERROR: PROGRAM IS TERMINATED DUE TO MISSING DATA FILE!
- echo $fname  ---- ST4.gz data file does not exists!
+ echo $fname  ---- st4_conus.grb2 data file does not exists!
  echo  Please check the  directory $COMINpcpanl.$curdate!
  set -x
  err=911;export err=911;err_chk

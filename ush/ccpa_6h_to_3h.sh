@@ -6,6 +6,7 @@ echo $#
 #HISTORY:
 #02/18/2011: Initial script created by Yan Luo
 #09/26/2017: Script modified by Yan Luo for using Stage IV hourly data only
+#01/28/2020: Script modified by Yan Luo for using Stage IV GRIB2 input files
 ############################################################
 #----------------------------------------------------------
 # Begginning date and ending hour
@@ -53,13 +54,13 @@ cd $temp_dir
    Num=0
    for HH in $h0_3 
    do
-   if [ -s $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
+   if [ -s $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 ]; then
    (( Num=Num+1 ))
-    cp -p  $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
-    gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
+    cp -p  $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 $temp_dir
+    $CNVGRIB -g21  $temp_dir/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h
     cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_01h_${Num}.grb
    else
-    echo $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
+    echo $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 does not exist  >>$DATA/warning 
     exit
    fi 
    done
@@ -83,23 +84,23 @@ cd $temp_dir
    for HH in $h3_6 
    do
   if [ $HH == 00 ]; then
-    if [ -s $COMINpcpanl.$datnext/ST4.${datnext}${HH}.01h.gz ]; then
+    if [ -s $COMINpcpanl.$datnext/st4_conus.${datnext}${HH}.01h.grb2 ]; then
     (( Num=Num+1 ))
-     cp -p  $COMINpcpanl.$datnext/ST4.${datnext}${HH}.01h.gz $temp_dir
-     gunzip $temp_dir/ST4.${datnext}${HH}.01h.gz
+     cp -p  $COMINpcpanl.$datnext/st4_conus.${datnext}${HH}.01h.grb2 $temp_dir
+     $CNVGRIB -g21  $temp_dir/st4_conus.${datnext}${HH}.01h.grb2  $temp_dir/ST4.${datnext}${HH}.01h
      cp -p  $temp_dir/ST4.${datnext}${HH}.01h rfc_01h_${Num}.grb
     else
-     echo $COMINpcpanl.$datnext/ST4.${datnext}${HH}.01h.gz does not exist  >>$DATA/warning 
+     echo $COMINpcpanl.$datnext/st4_conus.${datnext}${HH}.01h.grb2 does not exist  >>$DATA/warning 
      exit
     fi 
   else
-    if [ -s $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz ]; then
+    if [ -s $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 ]; then
     (( Num=Num+1 ))
-     cp -p  $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz $temp_dir
-     gunzip $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h.gz
+     cp -p  $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 $temp_dir
+     $CNVGRIB -g21  $temp_dir/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h 
      cp -p  $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h rfc_01h_${Num}.grb
     else
-     echo $COMINpcpanl.$yyyy$mm$dd/ST4.${yyyy}${mm}${dd}${HH}.01h.gz does not exist  >>$DATA/warning 
+     echo $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 does not exist  >>$DATA/warning 
      exit
     fi 
   fi
