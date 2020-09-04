@@ -56,12 +56,15 @@ cd $temp_dir
   do
    (( Num=Num+1 ))
    if [ $HH == 00 ]; then
-   ymd=$datnext
-   yyyy=` echo $ymd | cut -c1-4 `
-   mm=` echo $ymd | cut -c5-6 `
-   dd=` echo $ymd | cut -c7-8 `
-   fi
-
+    if [ -s $COMINpcpanl.$datnext/st4_conus.${datnext}${HH}.01h.grb2 ]; then
+     cp -p  $COMINpcpanl.$datnext/st4_conus.${datnext}${HH}.01h.grb2 $temp_dir
+     $CNVGRIB -g21  $temp_dir/st4_conus.${datnext}${HH}.01h.grb2 $temp_dir/ST4.${datnext}${HH}.01h
+     cp -p  $temp_dir/ST4.${datnext}${HH}.01h rfc_orig_${Num}.grb   #1
+    else
+     echo $COMINpcpanl.$datnext/st4_conus.${datnext}${HH}.01h.grb2 does not exist  >>$DATA/warning
+     exit
+    fi
+   else
    if [ -s $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 ]; then
     cp -p  $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 $temp_dir
     $CNVGRIB -g21  $temp_dir/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 $temp_dir/ST4.${yyyy}${mm}${dd}${HH}.01h
@@ -69,6 +72,7 @@ cd $temp_dir
    else
     echo $COMINpcpanl.$yyyy$mm$dd/st4_conus.${yyyy}${mm}${dd}${HH}.01h.grb2 does not exist  >>$DATA/warning
     exit
+    fi
    fi
   done
 
