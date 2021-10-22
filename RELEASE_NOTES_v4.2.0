@@ -1,0 +1,87 @@
+Release Notes:  CCPA v4.2.0 - released to NCO on October 22, 2021
+
+Transition CCPA from Venus/Mars to WCOSS2
+
+Where is the release tag on GitHub?
+
+1. Checkout GitHub Tags:
+
+   git clone -b tags/ccpa.v4.2.0  https://github.com/NOAA-EMC/ccpa
+
+2. Download the static binary files for the fix directory and copy the directory back to the ccpa code:
+
+   ftp://ftp.emc.ncep.noaa.gov/static_files/public/CCPA/ccpa.v4_fixdir_from_ftp.tar.gz
+
+
+List of external software used (anything outside of your vertical structure), including compilers and version numbers for everything
+
+   See versions/build.ver and versions/run.ver.
+
+List of all scripts modified with this release
+
+   1. Added             versions/build.ver
+      Added             versions/run.ver
+      Deleted           versions/ccpa.ver
+   2. Modified          ecf/ccpa/jccpa_conus.ecf
+      Modified          ecf/ccpa/jccpa_gempak.ecf
+   3. Modified          jobs/JCCPA_CONUS
+      Modified          jobs/JCCPA_GEMPAK
+   4. Renamed           scripts/exccpa_conus.sh.ecf -> scripts/exccpa_conus.sh
+      Renamed/Modified  scripts/exccpa_gempak.sh.ecf -> scripts/exccpa_gempak.sh
+   5. Modified          sorc/README.build
+      Modified          sorc/build.sh
+      Renamed/Modified  sorc/Module_CCPA_v4.1.3 -> sorc/Module_CCPA_file
+
+What changes were made to the above code/scripts to support the new architecture?
+ 
+   All listed above to meet NCO new WCOSS2 standards.   
+
+Were any other changes made that aren’t directly related to the transition?
+   No
+
+Are there any changes to incoming data needs or outgoing products?
+   The path of incoming PCPANL files is changed
+
+If output filenames are changing, list the current and new filename
+   N/A
+
+Compute resource information, for every job:
+   Total tasks: 5 
+   Tasks per node: 5
+   Serial or parallel or mpmd: mpmd (1 node, 5 tasks)
+   Memory requirements (exclusive or shared): No change
+   List any other LSF resource information requirements or MPI tunables: None
+   *** Providing LSF and/or ecFlow submission scripts as part of release tag is preferred; if they are provided then this information is not needed in the release notes: None
+
+Runtime changes compared to current production (/com/logs/runtime/daily/* for current stats)
+   A little bit faster
+Disk space required per day or per cycle; data retention on disk will remain the same unless otherwise requested
+   No change
+Dissemination will remain the same unless otherwise communicated to NCO and a PNS/SCN issued
+   No change
+HPSS archive retention will remain the same unless approval granted by HPCRAC
+   No change
+
+What are your up and downstream dependencies?
+
+   Upstream dependencies: 
+        Stage IV files from PCPANL (Jun Du)
+   Downstream dependencies: 
+    	SREF (Jun Du)
+	NAM  (Eric Rogers & Shun Liu)
+	ConUS QPF verification  (Alicia Bentley)
+	MDL/NBM (Eric Engle)
+	NAEFS/CQPF (Yan Luo)
+
+Testing with NCO canned data
+   In ecf/ccpa sub-directory, run 4 ecf files in the following order (see run_ccpa_test.sh):  
+   Submit jobs one by one after the previous one is done.
+     qsub jccpa_conus_00.ecf
+     qsub jccpa_conus_12.ecf
+     qsub jccpa_gempak_00.ecf
+     qsub jccpa_gempak_12.ecf
+
+
+
+
+

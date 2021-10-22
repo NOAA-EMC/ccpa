@@ -1,0 +1,11 @@
+#%Module#####################################################
+## Module file for ccpa
+#############################################################
+
+      module purge
+      module load envvar/${envvar_ver}
+      module load PrgEnv-intel/${PrgEnv_intel_ver}
+      module load craype/${craype_ver}
+      module load intel/${intel_ver}
+      module load w3nco/${w3nco_ver}
+      module load bacio/${bacio_ver}
