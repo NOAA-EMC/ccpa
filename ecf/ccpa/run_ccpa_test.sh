@@ -2,16 +2,16 @@
 
 # rm -fr /lfs/h2/emc/ptmp/Yan.Luo/canned/com/ccpa/v4.2/nwges
 
-# submit job one by one in this order
+# submit jobs one by one in this order
 
-qsub jccpa_conus_00.ecf
-qsub jccpa_conus_12.ecf
+1. qsub jccpa_conus_00.ecf
 
-qsub jccpa_gempak_00.ecf
-qsub jccpa_gempak_12.ecf
+# if job1 finishes then
+2. qsub jccpa_conus_12.ecf
 
+# if job2 finishes then
+3. qsub jccpa_gempak_00.ecf
 
-# check job running status
-
-qstat | grep Yan 
+# if job3 finishes then
+4. qsub jccpa_gempak_12.ecf
 

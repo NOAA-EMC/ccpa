@@ -40,9 +40,8 @@ setpdy.sh
 . PDY
 
 export PDYm8=`finddate.sh $PDY d-8`
-export COMIN=${COMIN:-${COMROOT}/${NET}/${envir}}
-#export COMOUT=${COMOUT:-${COMROOT}/nawips/${envir}/${RUN}.${PDY}}
-export COMOUT=${COMOUT:-${COMROOTp3}/${NET}/${envir}/${RUN}.${PDY}/gempak}
+export COMIN=${COMIN:-${COMROOT}/${NET}/${ver}}
+export COMOUT=${COMOUT:-${COMROOT}/${NET}/${ver}/${RUN}.${PDY}/gempak}
 
 if [ ! -f $COMOUT ] ; then
   mkdir -p -m 775 $COMOUT
@@ -52,7 +51,7 @@ env
 
 ########################################################
 # Execute the script.
-  $HOMEccpa/scripts/exccpa_gempak.sh.ecf
+  $HOMEccpa/scripts/exccpa_gempak.sh
 ########################################################
 
 cat $pgmout

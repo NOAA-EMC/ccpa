@@ -16,7 +16,6 @@ set -xa
 cd $DATA
 
 msg="Begin job for $job"
-postmsg "$jlogfile" "$msg"
 
 cpyfil=gds
 garea=dset
@@ -130,6 +129,5 @@ set -x
 
 msg='Job completed normally.'
 echo $msg
-postmsg "$jlogfile" "$msg"
 
 ############################### END OF SCRIPT #######################

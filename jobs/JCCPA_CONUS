@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -xa
+
 export PS4='$SECONDS + '
 date
 
@@ -65,9 +66,9 @@ export DATAOUT=${DATAOUT:-$DATA/CCPA_out}    #directory used to store output fil
 ####################################
 export interp=3
 export grid=hrap
-export COMINpcpanl=${COMINpcpanl:-$(compath.py pcpanl/prod/pcpanl)}
-export COMOUT=${COMOUT:-${COMROOT}/${NET}/${envir}/${RUN}}
-export GESOUT=${GESOUT:-${GESROOT}/${envir}/ccpa}
+export COMINpcpanl=${COMINpcpanl:-$(compath.py $envir/com/pcpanl/${pcpanl_ver})/pcpanl}
+export COMOUT=${COMOUT:-${COMROOT}/${NET}/${ver}/${RUN}}
+export GESOUT=${GESOUT:-${GESROOT}/${NET}/${ver}/nwges/${RUN}}
 
 mkdir -p $GESOUT
 
@@ -136,7 +137,7 @@ cd $work_dir
   echo  Re-Run $day2 job -----  processing 24h precip ending at 12Z $day2
 
   # JY echo "$HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2 $work_dir" >>$DATA/poescript
-  echo "$HOMEccpa/scripts/exccpa_conus.sh.ecf $day1 $day2 $work_dir $flagNum" >>$DATA/poescript
+  echo "$HOMEccpa/scripts/exccpa_conus.sh $day1 $day2 $work_dir $flagNum" >>$DATA/poescript
 
   # JY ecflow_client --event release_gempak
 
@@ -151,20 +152,19 @@ done
 chmod 775 $DATA/poescript
 
 export MP_CMDFILE=$DATA/poescript
-export MP_PGMMODEL=mpmd
 
 ####################
 # Execute the script 
 ####################
 
-mpirun -l cfp ${MP_CMDFILE}
+mpiexec -np 5 cfp ${MP_CMDFILE}
+
 export err=$?; err_chk
 
 echo `hostname`
 
 cat $pgmout.*
 msg="JOB COMPLETED NORMALLY"
-postmsg "$jlogfile" "$msg"
 
 ##############################
 # Remove the Temporary working directory
